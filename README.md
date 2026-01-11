@@ -19,14 +19,11 @@ Glyph provides a clean, accessible, and native-feeling command menu inspired by 
 
 ```bash
 npm install glyphx
+```
 or
+```bash
 pnpm add glyphx
-
----
-
-## 4️⃣ Basic Usage
-
-```md
+```
 ## Basic Usage
 
 ```tsx
@@ -46,13 +43,11 @@ const commands = [
 export default function App() {
   return <GlyphX commands={commands} />;
 }
+```
 Press ⌘ + K on macOS or Ctrl + K on Windows/Linux to open the palette.
 
 ---
 
-## 5️⃣ Controlled Usage
-
-```md
 ## Controlled Usage
 
 ```tsx
@@ -61,13 +56,8 @@ Press ⌘ + K on macOS or Ctrl + K on Windows/Linux to open the palette.
   open={isOpen}
   onOpenChange={setIsOpen}
 />
+```
 
-
----
-
-## 6️⃣ Command Shape
-
-```md
 ## Command Shape
 
 ```ts
@@ -77,12 +67,8 @@ type Command = {
   group?: string;
   run: () => void;
 };
+```
 
----
-
-## 7️⃣ Design Goals
-
-```md
 ## Design Goals
 
 - Minimal visual noise
