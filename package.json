@@ -1,6 +1,6 @@
 {
   "name": "glyphx",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A fast, keyboard-first, Spotlight-style command palette for React",
   "license": "MIT",
   "type": "module",
@@ -52,16 +52,16 @@
     "vite": "^7.2.4"
   },
   "keywords": [
-  "react",
-  "command-palette",
-  "keyboard",
-  "spotlight",
-  "ui",
-  "accessibility",
-  "fuzzy-search",
-  "radix-ui",
-  "zustand",
-  "frontend",
-  "developer-tools"
+    "react",
+    "command-palette",
+    "keyboard",
+    "spotlight",
+    "ui",
+    "accessibility",
+    "fuzzy-search",
+    "radix-ui",
+    "zustand",
+    "frontend",
+    "developer-tools"
   ]
 }
