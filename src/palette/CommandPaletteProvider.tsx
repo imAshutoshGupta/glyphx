@@ -4,7 +4,7 @@ import { usePaletteStore } from "../state/paletteStore";
 import { useCommandShortcut } from "../hooks/useCommandShortcut";
 import { CommandPalette as InternalPalette } from "../ui/CommandPalette";
 
-export function GlyphX({ commands, open, onOpenChange }: GlyphXProps) {
+export function GlyphX({ commands, open, onOpenChange, shortcut }: GlyphXProps) {
   const storeOpen = usePaletteStore((s) => s.open);
   const storeClose = usePaletteStore((s) => s.close);
   const registerCommands = usePaletteStore((s) => s.registerCommands);
@@ -12,7 +12,7 @@ export function GlyphX({ commands, open, onOpenChange }: GlyphXProps) {
   useCommandShortcut(() => {
     onOpenChange?.(true);
     storeOpen();
-  });
+  }, shortcut);
 
   useEffect(() => {
     registerCommands(commands);

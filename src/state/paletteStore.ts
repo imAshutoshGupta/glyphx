@@ -1,12 +1,13 @@
 import { create } from "zustand";
 import type { Command } from "../engine";
 import { normalizeCommands, searchCommands } from "../engine";
+import type { NormalizedCommand } from "../engine/normalize";
 import type { SearchResult } from "../engine/search";
 
 type PaletteState = {
   commands: Command[];
-  normalized: ReturnType<typeof normalizeCommands>;
-  results: SearchResult<Command>[];
+  normalized: NormalizedCommand[];
+  results: SearchResult<NormalizedCommand>[];
   isOpen: boolean;
   query: string;
   selectedIndex: number;
@@ -35,7 +36,8 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
       normalized,
       results: normalized.map((cmd) => ({
         item: cmd,
-        indexes: null,
+        titleIndexes: null,
+        subtitleIndexes: null,
       })),
       selectedIndex: 0,
     });
@@ -74,9 +76,14 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
 
   open: () => set({ isOpen: true }),
   close: () =>
-    set({
+    set((state) => ({
       isOpen: false,
       query: "",
       selectedIndex: 0,
-    }),
+      results: state.normalized.map((cmd) => ({
+        item: cmd,
+        titleIndexes: null,
+        subtitleIndexes: null,
+      })),
+    })),
 }));

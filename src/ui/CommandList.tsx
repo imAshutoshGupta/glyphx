@@ -19,12 +19,7 @@ export function CommandList() {
   let globalIndex = 0;
 
   return (
-    <div
-      className="max-h-64 overflow-y-auto transition-opacity
-    duration-150
-    opacity-100
-    data-[empty=true]:opacity-60"
-    >
+    <div className="max-h-64 overflow-y-auto overscroll-contain [contain:layout_paint] transition-opacity duration-150 opacity-100">
       {grouped.map(({ group, items }) => (
         <div key={group}>
           <div className="px-3 py-2 text-xs font-semibold text-zinc-500">
@@ -38,7 +33,8 @@ export function CommandList() {
                 <CommandItem
                   key={result.item.id}
                   command={result.item}
-                  matchIndexes={result.indexes}
+                  titleIndexes={result.titleIndexes}
+                  subtitleIndexes={result.subtitleIndexes}
                   index={index}
                 />
               );

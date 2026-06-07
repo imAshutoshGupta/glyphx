@@ -3,8 +3,31 @@ import type { NormalizedCommand } from "./normalize";
 
 export type SearchResult<T> = {
   item: T;
-  indexes: readonly number[] | null;
+  titleIndexes: readonly number[] | null;
+  subtitleIndexes: readonly number[] | null;
 };
+
+function splitIndexes(
+  raw: readonly number[],
+  titleLength: number,
+  subtitleLength: number
+): { titleIndexes: number[]; subtitleIndexes: number[] } {
+  const subtitleStart = titleLength + 1; // +1 for the space separator
+  const subtitleEnd = subtitleStart + subtitleLength;
+
+  const titleIdxs: number[] = [];
+  const subtitleIdxs: number[] = [];
+
+  for (const i of raw) {
+    if (i < titleLength) {
+      titleIdxs.push(i);
+    } else if (subtitleLength > 0 && i >= subtitleStart && i < subtitleEnd) {
+      subtitleIdxs.push(i - subtitleStart);
+    }
+  }
+
+  return { titleIndexes: titleIdxs, subtitleIndexes: subtitleIdxs };
+}
 
 export function searchCommands(
   commands: NormalizedCommand[],
@@ -13,7 +36,8 @@ export function searchCommands(
   if (!query.trim()) {
     return commands.map((cmd) => ({
       item: cmd,
-      indexes: null,
+      titleIndexes: null,
+      subtitleIndexes: null,
     }));
   }
 
@@ -22,8 +46,17 @@ export function searchCommands(
     threshold: -1000,
   });
 
-  return results.map((r) => ({
-    item: r.obj,
-    indexes: r.indexes,
-  }));
+  return results.map((r) => {
+    const { titleIndexes, subtitleIndexes } = splitIndexes(
+      r.indexes,
+      r.obj.titleLength,
+      r.obj.subtitleLength
+    );
+
+    return {
+      item: r.obj,
+      titleIndexes: titleIndexes.length > 0 ? titleIndexes : null,
+      subtitleIndexes: subtitleIndexes.length > 0 ? subtitleIndexes : null,
+    };
+  });
 }

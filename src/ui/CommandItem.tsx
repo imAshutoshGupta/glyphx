@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import type { Command } from "../engine";
 import { executeCommand } from "../engine";
 import { usePaletteStore } from "../state/paletteStore";
@@ -7,15 +7,17 @@ import { highlightText } from "./highlight";
 
 type Props = {
   command: Command;
-  matchIndexes: readonly number[] | null;
+  titleIndexes: readonly number[] | null;
+  subtitleIndexes: readonly number[] | null;
   index: number;
 };
 
-export function CommandItem({ command, matchIndexes, index }: Props) {
+function CommandItemImpl({ command, titleIndexes, subtitleIndexes, index }: Props) {
   const close = usePaletteStore((s) => s.close);
-  const selectedIndex = usePaletteStore((s) => s.selectedIndex);
-
-  const isSelected = index === selectedIndex;
+  // Subscribe to a boolean slice, not the raw selectedIndex, so only the two
+  // items whose selection state actually flips re-render on each keystroke
+  // (instead of every item in the list).
+  const isSelected = usePaletteStore((s) => s.selectedIndex === index);
 
   const ref = useRef<HTMLButtonElement>(null);
 
@@ -25,6 +27,7 @@ export function CommandItem({ command, matchIndexes, index }: Props) {
     <li>
       <button
         ref={ref}
+        aria-label={command.title}
         onClick={async () => {
           await executeCommand(command);
           close();
@@ -39,7 +42,14 @@ export function CommandItem({ command, matchIndexes, index }: Props) {
           }
         `}
       >
-        <span>{highlightText(command.title, matchIndexes)}</span>
+        <span className="flex flex-col">
+          <span>{highlightText(command.title, titleIndexes)}</span>
+          {command.subtitle && (
+            <span className="text-xs text-[rgb(var(--muted))]">
+              {highlightText(command.subtitle, subtitleIndexes)}
+            </span>
+          )}
+        </span>
 
         {command.shortcut && (
           <span className="text-xs text-zinc-500">{command.shortcut}</span>
@@ -48,3 +58,5 @@ export function CommandItem({ command, matchIndexes, index }: Props) {
     </li>
   );
 }
+
+export const CommandItem = memo(CommandItemImpl);

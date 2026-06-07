@@ -5,7 +5,7 @@
   --fg: 24 24 27;
   --muted: 113 113 122;
   --border: 228 228 231;
-  --glass: 255 255 255 / 0.7;
+  --glass: 255 255 255 / 0.92;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,7 +14,7 @@
     --fg: 244 244 245;
     --muted: 161 161 170;
     --border: 39 39 42;
-    --glass: 24 24 27 / 0.7;
+    --glass: 24 24 27 / 0.92;
   }
 }
 @keyframes spotlight-in {

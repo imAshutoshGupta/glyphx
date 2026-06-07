@@ -1,6 +1,6 @@
 {
   "name": "glyphx",
-  "version": "0.1.2",
+  "version": "0.2.1",
   "description": "A fast, keyboard-first, Spotlight-style command palette for React",
   "license": "MIT",
   "type": "module",
@@ -12,13 +12,17 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
+      "import": "./dist/index.js",
+      "require": "./dist/index.umd.cjs"
+    },
+    "./style.css": "./dist/index.css"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "peerDependencies": {
     "react": "^18 || ^19",
@@ -27,8 +31,6 @@
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-visually-hidden": "^1.2.4",
-    "clsx": "^2.1.1",
-    "cmdk": "^1.1.1",
     "fuzzysort": "^3.1.0",
     "zustand": "^5.0.9"
   },
@@ -36,6 +38,9 @@
     "@eslint/js": "^9.39.1",
     "@tailwindcss/cli": "^4.1.18",
     "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
@@ -45,11 +50,14 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^29.1.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vite-plugin-dts": "^5.0.2",
+    "vitest": "^4.1.8"
   },
   "keywords": [
     "react",

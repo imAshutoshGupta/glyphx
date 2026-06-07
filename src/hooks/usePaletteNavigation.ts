@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { usePaletteStore } from "../state/paletteStore";
+import { executeCommand } from "../engine";
 
 export function usePaletteNavigation() {
   const isOpen = usePaletteStore((s) => s.isOpen);
@@ -28,7 +29,7 @@ export function usePaletteNavigation() {
           e.preventDefault();
           const result = results[selectedIndex];
           if (result) {
-            result.item.run();
+            executeCommand(result.item);
             close();
           }
           break;

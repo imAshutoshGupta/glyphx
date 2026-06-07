@@ -12,7 +12,11 @@ export function CommandDialog({ open, onOpenChange, children }: Props) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
+        {/* Plain dim instead of backdrop-blur: a full-viewport backdrop-filter
+            forces Safari to re-rasterize the blurred page every frame while the
+            list scrolls, which made scrolling janky. The palette itself keeps
+            its translucent glass background. */}
+        <Dialog.Overlay className="fixed inset-0 bg-black/40" />
 
         <div
           className="
@@ -32,7 +36,6 @@ export function CommandDialog({ open, onOpenChange, children }: Props) {
               border border-[rgb(var(--border))]
               bg-[rgb(var(--glass))]
               text-[rgb(var(--fg))]
-              backdrop-blur-xl
               shadow-xl
             "
           >
