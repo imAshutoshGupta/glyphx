@@ -15,6 +15,18 @@ GlyphX provides a clean, accessible, and native-feeling command menu inspired by
 - Accessible by default (Radix Dialog)
 - Smooth, GPU-composited animations
 
+## Compatibility
+
+| Requirement | Supported |
+| --- | --- |
+| **React** | 18 and 19 |
+| **Next.js** | 13.4+ (App Router) and 14 — also works on 15 via React 19 |
+| **Module formats** | ESM (`import`) and CommonJS (`require`) |
+
+> **Why React 18 is the floor:** GlyphX depends on Zustand v5, which uses the native `useSyncExternalStore` API and therefore requires React 18 or newer. React 16/17 are not supported.
+
+The published bundle is marked as a client module (`"use client"`), so you can import `<GlyphX>` directly into a **Next.js App Router Server Component** — no manual `"use client"` wrapper needed.
+
 ## Installation
 
 ```bash
@@ -32,6 +44,15 @@ Import the stylesheet once at your app's entry point — it contains the theme v
 ```ts
 import "glyphx/style.css";
 ```
+
+**Next.js (App Router):** import the stylesheet once in your root layout (`app/layout.tsx`):
+
+```tsx
+// app/layout.tsx
+import "glyphx/style.css";
+```
+
+`<GlyphX>` ships with `"use client"` baked in, so you can render it from a Server Component (e.g. directly in a layout or page) without adding your own client wrapper.
 
 ## Basic Usage
 
