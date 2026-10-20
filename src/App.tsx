@@ -1,13 +1,41 @@
 import { useMemo, useState } from "react";
 import { GlyphX } from "./palette/CommandPaletteProvider";
 import type { Command } from "./engine";
-import type { GlyphXTheme } from "./palette/types";
+import type { GlyphXTheme, ShortcutConfig } from "./palette/types";
+import logoUrl from "../assets/logo.svg";
+
+const REPO_URL = "https://github.com/imAshutoshGupta/glyphx";
+const NPM_URL = "https://www.npmjs.com/package/glyphx";
+const INSTALL_COMMAND = "npm install glyphx";
+
+// ⌘/Ctrl + K as well as the default: Firefox keeps ⌘/Ctrl + Shift + P for
+// itself and never passes it to the page.
+const SHORTCUTS: ShortcutConfig[] = [{ key: "p", shift: true }, { key: "k" }];
+
+const nav = navigator as Navigator & { userAgentData?: { platform: string } };
+const MOD = /^mac/i.test(nav.userAgentData?.platform ?? navigator.platform)
+  ? "⌘"
+  : "Ctrl";
+
+const THEMES: { value: GlyphXTheme; label: string }[] = [
+  { value: "system", label: "System" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
 
 const systemTheme = () =>
   window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
 export default function App() {
+  const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<GlyphXTheme>("system");
+  const [copied, setCopied] = useState(false);
+
+  const copyInstallCommand = async () => {
+    await navigator.clipboard.writeText(INSTALL_COMMAND);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   const commands: Command[] = useMemo(
     () => [
@@ -17,8 +45,23 @@ export default function App() {
         subtitle: "Go to the GlyphX repository",
         keywords: ["repo", "source", "code"],
         group: "Navigation",
-        run: () =>
-          window.open("https://github.com/imAshutoshGupta/glyphx", "_blank"),
+        run: () => window.open(REPO_URL, "_blank"),
+      },
+      {
+        id: "open-npm",
+        title: "Open npm",
+        subtitle: "See the package on npmjs.com",
+        keywords: ["package", "install", "registry"],
+        group: "Navigation",
+        run: () => window.open(NPM_URL, "_blank"),
+      },
+      {
+        id: "copy-install",
+        title: "Copy Install Command",
+        subtitle: INSTALL_COMMAND,
+        keywords: ["clipboard", "npm", "setup"],
+        group: "Navigation",
+        run: () => navigator.clipboard.writeText(INSTALL_COMMAND),
       },
       {
         id: "copy-url",
@@ -27,13 +70,6 @@ export default function App() {
         keywords: ["clipboard", "link", "share"],
         group: "Navigation",
         run: () => navigator.clipboard.writeText(window.location.href),
-      },
-      {
-        id: "scroll-top",
-        title: "Scroll to Top",
-        keywords: ["up", "beginning"],
-        group: "Navigation",
-        run: () => window.scrollTo({ top: 0, behavior: "smooth" }),
       },
       {
         id: "toggle-dark",
@@ -49,6 +85,14 @@ export default function App() {
           ),
       },
       {
+        id: "system-theme",
+        title: "Use System Theme",
+        subtitle: "Follow the operating system's light or dark setting",
+        keywords: ["theme", "auto", "appearance"],
+        group: "Appearance",
+        run: () => setTheme("system"),
+      },
+      {
         id: "reload",
         title: "Reload Page",
         keywords: ["refresh", "restart"],
@@ -62,17 +106,6 @@ export default function App() {
         keywords: ["date", "now", "timestamp"],
         group: "Developer",
         run: () => console.log("Current time:", new Date().toLocaleTimeString()),
-      },
-      {
-        id: "clear-storage",
-        title: "Clear Local Storage",
-        subtitle: "Wipe all data stored in localStorage",
-        keywords: ["cache", "reset", "storage"],
-        group: "Developer",
-        run: () => {
-          localStorage.clear();
-          console.log("localStorage cleared");
-        },
       },
       {
         id: "copy-ua",
@@ -93,22 +126,60 @@ export default function App() {
         data-glyphx-theme={theme === "system" ? undefined : theme}
       >
         <div className="demo-intro">
-          <img src="/assets/logo.svg" alt="" width={48} height={48} />
-          <h1>GlyphX Playground</h1>
-
-          <p>
-            Press <kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> to open the
-            palette
+          <img src={logoUrl} alt="" width={56} height={56} />
+          <h1>GlyphX</h1>
+          <p className="demo-tagline">
+            A fast, keyboard-first, Spotlight-style command palette for React.
           </p>
 
-          <p className="demo-note">
-            This is a minimal host environment for testing and showcasing
-            GlyphX.
+          <button
+            type="button"
+            className="demo-primary"
+            onClick={() => setOpen(true)}
+          >
+            Open the palette
+          </button>
+
+          <p className="demo-hint">
+            or press <kbd>{MOD}</kbd> <kbd>Shift</kbd> <kbd>P</kbd> or{" "}
+            <kbd>{MOD}</kbd> <kbd>K</kbd>
           </p>
+
+          <div className="demo-install">
+            <code>{INSTALL_COMMAND}</code>
+            <button type="button" onClick={copyInstallCommand}>
+              {copied ? "Copied" : "Copy"}
+            </button>
+          </div>
+
+          <div className="demo-themes" role="group" aria-label="Theme">
+            {THEMES.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={theme === value}
+                onClick={() => setTheme(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <nav className="demo-links">
+            <a href={REPO_URL}>GitHub</a>
+            <a href={NPM_URL}>npm</a>
+            <a href={`${REPO_URL}#readme`}>Documentation</a>
+          </nav>
         </div>
       </main>
 
-      <GlyphX commands={commands} theme={theme} />
+      <GlyphX
+        commands={commands}
+        open={open}
+        onOpenChange={setOpen}
+        shortcut={SHORTCUTS}
+        theme={theme}
+      />
     </>
   );
 }

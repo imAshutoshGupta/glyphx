@@ -1,9 +1,9 @@
 /// <reference types="vitest/config" />
-import { copyFileSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { defineConfig, type UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import dts from "vite-plugin-dts";
-import { resolve } from "path";
+import { dirname, resolve } from "path";
 
 const pkg = JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf8"));
 const entry = resolve(__dirname, "src/index.ts");
@@ -25,21 +25,38 @@ const dependencies = [
 const isDependency = (id: string) =>
   dependencies.some((dep) => id === dep || id.startsWith(`${dep}/`));
 
+// TypeScript resolves declaration files the way Node resolves modules, so
+// their relative imports need full file names, which tsc doesn't add:
+// - ESM consumers read the .d.ts files; their imports get a .js extension
+//   (TypeScript then reads the matching .d.ts).
+// - CommonJS consumers get a .d.cts copy of each file, because TypeScript
+//   treats a .d.ts in a "type": "module" package as ESM, which `require`
+//   can't load. The copies' imports name the .cjs file, so they stay
+//   CommonJS too.
+const RELATIVE_IMPORT = /(from\s+|import\()(["'])(\.{1,2}\/[^"']+)\2/g;
+
+function writeDeclarations(emittedFiles: Map<string, string>) {
+  for (const [file, content] of emittedFiles) {
+    if (!file.endsWith(".d.ts")) continue;
+    const withExtension = (extension: string) =>
+      content.replace(RELATIVE_IMPORT, (_, before, quote, specifier) => {
+        const path = existsSync(resolve(dirname(file), `${specifier}.d.ts`))
+          ? specifier
+          : `${specifier}/index`;
+        return `${before}${quote}${path}${extension}${quote}`;
+      });
+    writeFileSync(file, withExtension(".js"));
+    writeFileSync(file.replace(/\.d\.ts$/, ".d.cts"), withExtension(".cjs"));
+  }
+}
+
 // `vite build`: the ESM and CommonJS builds that npm consumers import.
 const libraryConfig: UserConfig = {
   plugins: [
     react(),
     dts({
       tsconfigPath: "./tsconfig.build.json",
-      // One self-contained declaration file, copied to index.d.cts for
-      // CommonJS consumers: TypeScript treats a .d.ts in a "type": "module"
-      // package as ESM, which `require` can't load.
-      bundleTypes: true,
-      afterBuild: () =>
-        copyFileSync(
-          resolve(__dirname, "dist/index.d.ts"),
-          resolve(__dirname, "dist/index.d.cts")
-        ),
+      afterBuild: writeDeclarations,
     }),
   ],
   build: {
@@ -98,6 +115,14 @@ const umdConfig: UserConfig = {
   },
 };
 
+// `vite build --mode site`: the playground as a static website, published to
+// GitHub Pages at https://imashutoshgupta.github.io/glyphx/.
+const siteConfig: UserConfig = {
+  plugins: [react()],
+  base: "/glyphx/",
+  build: { outDir: "dist-site" },
+};
+
 export default defineConfig(({ mode }) =>
-  mode === "umd" ? umdConfig : libraryConfig
+  mode === "umd" ? umdConfig : mode === "site" ? siteConfig : libraryConfig
 );

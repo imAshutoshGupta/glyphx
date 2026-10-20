@@ -1,4 +1,4 @@
-/* Playground page styles. Not part of the published stylesheet. */
+/* Playground / website page styles. Not part of the published stylesheet. */
 
 body {
   margin: 0;
@@ -9,44 +9,128 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   min-height: 100vh;
+  padding: 2rem 1rem;
   background: rgb(var(--glyphx-bg));
   color: rgb(var(--glyphx-fg));
   text-align: center;
 }
 
 .demo-intro {
-  max-width: 28rem;
-}
-
-.demo img {
-  display: block;
-  margin: 0 auto 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 30rem;
 }
 
 .demo h1 {
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 500;
-  line-height: 1.75rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 2rem;
 }
 
 .demo p {
-  margin: 0.5rem 0 0;
+  margin: 0;
   color: rgb(var(--glyphx-muted));
   font-size: 0.875rem;
   line-height: 1.25rem;
 }
 
-.demo .demo-note {
-  margin-top: 1rem;
-  font-size: 0.75rem;
-  line-height: 1rem;
+.demo .demo-tagline {
+  margin-top: -0.5rem;
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 
 .demo kbd {
   padding: 0.125rem 0.375rem;
-  border: 1px solid currentColor;
+  border: 1px solid rgb(var(--glyphx-border));
   border-radius: 0.25rem;
   font-family: inherit;
+  font-size: 0.75rem;
+}
+
+.demo button {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid rgb(var(--glyphx-border));
+  border-radius: 0.5rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.demo button:hover {
+  background: rgb(var(--glyphx-selected));
+}
+
+.demo button:focus-visible,
+.demo a:focus-visible {
+  outline: 2px solid rgb(var(--glyphx-accent));
+  outline-offset: 2px;
+}
+
+.demo .demo-primary {
+  margin-top: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-color: rgb(var(--glyphx-fg));
+  background: rgb(var(--glyphx-fg));
+  color: rgb(var(--glyphx-bg));
+  font-weight: 500;
+}
+
+.demo .demo-primary:hover {
+  background: rgb(var(--glyphx-fg) / 0.85);
+}
+
+.demo-install {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding: 0.375rem 0.375rem 0.375rem 0.875rem;
+  border: 1px solid rgb(var(--glyphx-border));
+  border-radius: 0.5rem;
+}
+
+.demo-install code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875rem;
+}
+
+.demo-themes {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.demo-themes button[aria-pressed="true"] {
+  background: rgb(var(--glyphx-selected));
+  font-weight: 500;
+}
+
+.demo-links {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.demo-links a {
+  color: rgb(var(--glyphx-muted));
+  text-underline-offset: 3px;
+}
+
+.demo-links a:hover {
+  color: rgb(var(--glyphx-fg));
+}
+
+/* Phones and tablets without a keyboard can't use the shortcuts. */
+@media (hover: none) and (pointer: coarse) {
+  .demo-hint {
+    display: none;
+  }
 }

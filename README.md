@@ -17,6 +17,8 @@
 
 GlyphX provides a clean, accessible, and native-feeling command menu inspired by macOS Spotlight and modern desktop tools.
 
+**[Try it in your browser →](https://imashutoshgupta.github.io/glyphx/)**
+
 ## Features
 
 - Keyboard-first UX (default `⌘ + Shift + P` / `Ctrl + Shift + P`, configurable)
@@ -241,13 +243,15 @@ The package also has a UMD build for pages without a bundler. It needs React 18'
 ## Known Limitations
 
 - **Single instance per page:** GlyphX uses a module-level state store. Rendering two `<GlyphX>` components on the same page will cause them to share state (commands, open/closed status, query). Use one instance per page.
-- **0.2.2 in pure-ESM environments:** the 0.2.2 ESM build throws `Calling require for "react"` when loaded without a bundler (for example Node ESM / SSR). Apps that bundle GlyphX resolve the call at build time and are not affected. This is fixed in the next release.
+- **0.2.2 in pure-ESM environments:** the 0.2.2 ESM build throws `Calling require for "react"` when loaded without a bundler (for example Node ESM / SSR). Apps that bundle GlyphX resolve the call at build time and are not affected. Fixed in 0.3.0.
 
 ## Development
 
 ```bash
 npm install
 npm run dev          # playground app (src/App.tsx)
+npm run build:site   # playground as a static website, into dist-site/
+npm run preview      # serve dist-site/ locally
 npm test             # unit and component tests
 npm run lint         # ESLint
 npm run typecheck    # TypeScript, including tests and vite.config.ts
@@ -258,6 +262,8 @@ npm run verify:dist  # check dist (see scripts/verify-dist.mjs)
 `verify:dist` checks that the ESM and CommonJS builds start with `"use client"`, load, and import their dependencies instead of bundling them; that TypeScript finds the types through both `import` and `require`; that the UMD build runs with only the `React` and `ReactDOM` globals; and that the stylesheet only styles GlyphX's own elements.
 
 CI runs lint → type-check → test → build → verify:dist on Node 22 and 24 for every push and pull request to `main`. `prepublishOnly` runs build, verify:dist and test before publishing.
+
+Every push to `main` also publishes the playground to [GitHub Pages](https://imashutoshgupta.github.io/glyphx/) (`.github/workflows/pages.yml`).
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

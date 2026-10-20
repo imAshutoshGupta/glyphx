@@ -106,6 +106,17 @@ describe("searchCommands", () => {
     expect(match?.subtitleIndexes).toBeNull();
   });
 
+  it("highlights the subtitle only when the title doesn't match", () => {
+    const [match] = searchCommands(
+      normalizeCommands([
+        cmd({ title: "Copy Page URL", subtitle: "Copy the current URL" }),
+      ]),
+      "copy"
+    );
+    expect(match.titleIndexes).toEqual([0, 1, 2, 3]);
+    expect(match.subtitleIndexes).toBeNull();
+  });
+
   it("returns indexes into the original title", () => {
     const [match] = searchCommands(
       normalizeCommands([cmd({ title: "Open Settings" })]),

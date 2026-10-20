@@ -1,6 +1,6 @@
 {
   "name": "glyphx",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A fast, keyboard-first, Spotlight-style command palette for React",
   "license": "MIT",
   "author": "Ashutosh Gupta",
@@ -38,7 +38,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && vite build --mode umd",
-    "preview": "vite preview",
+    "build:site": "vite build --mode site",
+    "preview": "vite preview --mode site",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b",
@@ -58,7 +59,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@microsoft/api-extractor": "^7.59.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

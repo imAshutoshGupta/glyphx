@@ -39,9 +39,15 @@ export function searchCommands(
       ),
   });
 
-  return results.map((r) => ({
-    item: r.obj,
-    titleIndexes: nonEmpty(r[0].indexes),
-    subtitleIndexes: nonEmpty(r[1].indexes),
-  }));
+  return results.map((r) => {
+    const titleIndexes = nonEmpty(r[0].indexes);
+    return {
+      item: r.obj,
+      titleIndexes,
+      // Each field is matched separately, so the subtitle often has a weak
+      // match of its own (scattered letters). Only highlight it when the
+      // title doesn't match.
+      subtitleIndexes: titleIndexes ? null : nonEmpty(r[1].indexes),
+    };
+  });
 }

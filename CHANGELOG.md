@@ -5,6 +5,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-20
+
 ### Changed
 
 - **Breaking (theme overrides only):** GlyphX's CSS custom properties and animations are namespaced. `--bg`, `--fg`, `--muted`, `--border` and `--glass` are now `--glyphx-bg`, `--glyphx-fg`, `--glyphx-muted`, `--glyphx-border` and `--glyphx-glass`, and the `spotlight-in` / `spotlight-out` keyframes are now `glyphx-in` / `glyphx-out`. The old names were set on `:root` unprefixed, so they could clash with an app's own tokens of the same name (for example shadcn/ui's `--border` and `--muted`) and change the app's colors or GlyphX's. If you overrode them to theme GlyphX, rename your overrides.
@@ -13,11 +15,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - **Breaking (tests that query the DOM):** command rows are now `role="option"` elements in a `role="listbox"`, and the search input is a `role="combobox"` that points at the selected row with `aria-activedescendant`. Rows used to be `<button>`s, so tests that found them with `getByRole("button")` need `getByRole("option")`.
 - `glyphx/style.css` no longer restyles the host page. It used to include Tailwind CSS, whose base reset changed headings, buttons, inputs, lists and images across the whole page, along with global utility classes such as `.flex` and `.fixed`. It is now plain CSS that styles only GlyphX's own `glyphx-*` classes and sets only `--glyphx-*` variables. It is 3.4 KB instead of 13 KB. Your own global styles also can't override the palette's any more: the old Tailwind styles were in a cascade layer, which any unlayered rule (such as `input { … }`) beats.
 - The ESM and CommonJS builds import Radix, Zustand and fuzzysort instead of bundling copies of them, so your package manager installs one shared copy. The ESM bundle is 10 KB instead of 68 KB. The CommonJS entry point is now `dist/index.cjs`.
-- Search matches the title, subtitle and keywords separately. Before, they were joined into one string, so a fuzzy match could take letters from more than one field ("homens" matched "Go **Hom**e" plus the keywords "**n**av **s**tart"). For equally good matches, a title match ranks above a subtitle match, which ranks above a keyword match.
+- Search matches the title, subtitle and keywords separately. Before, they were joined into one string, so a fuzzy match could take letters from more than one field ("homens" matched "Go **Hom**e" plus the keywords "**n**av **s**tart"). For equally good matches, a title match ranks above a subtitle match, which ranks above a keyword match. Matched letters are highlighted in the title, or in the subtitle when the title doesn't match.
 - Moving the pointer over a row selects it. Before, hovering highlighted the row under the pointer while the keyboard selection stayed highlighted elsewhere.
 - Commands run once the palette has closed, instead of while it is still open.
 - CI runs on Node 22 and 24 (was Node 20, which reached end of life in April 2026) and uses `actions/checkout` and `actions/setup-node` v7.
 - Development: Tailwind CSS, PostCSS and Autoprefixer are no longer used. `tailwind.config.ts` and `postcss.config.cjs` are removed. The playground has its own stylesheet, `src/demo.css`.
+- Development dependencies are updated to versions without known security issues: `npm audit` reports 0 vulnerabilities (it reported 9 high and moderate ones, all in build and test tools; the published package was never affected).
+- The playground is now also a website, published to [GitHub Pages](https://imashutoshgupta.github.io/glyphx/) on every push to `main`. It has an "Open the palette" button for phones and Firefox, ⌘/Ctrl + K as a second shortcut, the install command, and light/dark/system theme switches. `npm run build:site` builds it into `dist-site/`, and `npm run preview` serves that folder.
 - The playground's "Toggle Dark Mode" command switches the palette and the page between light and dark. Before, it toggled a `dark` class that nothing used.
 - The playground uses GlyphX branding throughout: page title (was `react-command-palette`), favicon (was a missing `vite.svg`), heading and copy. Its "Open GitHub" command opens the GlyphX repository.
 
@@ -36,7 +40,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - The close animation never played: the palette and its backdrop disappeared at once. They now fade out, and both animations are skipped when the OS "reduce motion" setting is on.
 - Shortcuts with `alt: true` never fired on macOS, because Option changes the typed character (Option + J types `∆`). The default shortcut also didn't fire on non-Latin keyboard layouts such as Russian. Both now match the key's position on a US keyboard when the typed character isn't a Latin letter or digit.
 - The shortcut handler threw an error on the `keydown` events that browsers fire without a `key` while autofilling a form.
-- TypeScript reported error TS1479 when GlyphX was imported from a CommonJS module with `"moduleResolution": "node16"` or `"nodenext"`. CommonJS consumers now get `dist/index.d.cts`.
+- TypeScript reported error TS1479 when GlyphX was imported from a CommonJS module with `"moduleResolution": "node16"` or `"nodenext"`. CommonJS consumers now get `.d.cts` declaration files.
+- With `"moduleResolution": "node16"` or `"nodenext"`, TypeScript couldn't load GlyphX's types in ESM projects either, so imports were silently untyped. The declaration files imported each other without file extensions, which that resolution mode requires. They now include them.
 - The UMD build expected a `ReactJSXRuntime` global that no page defines, so it failed when loaded with a `<script>` tag. It now needs only the `React` and `ReactDOM` globals.
 - The CI type-check step checked nothing: `tsc --noEmit` on the root `tsconfig.json`, which lists no files of its own. CI now runs `npm run typecheck` (`tsc -b`), which also checks the tests and `vite.config.ts`.
 - `vite.config.ts` used `environmentMatchGlobs`, which Vitest 4 removed. It now uses Vitest projects, so `.tsx` tests run in jsdom without a per-file `@vitest-environment` comment.
@@ -58,7 +63,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - `npm run lint`, and a lint step in CI.
 - `npm run typecheck`.
 - The README documents the theme variables and how to load GlyphX with a `<script>` tag.
-- Tests for `useCommandShortcut`, `usePaletteNavigation`, `useAutoScroll`, and for each fix above (96 tests total).
+- Tests for `useCommandShortcut`, `usePaletteNavigation`, `useAutoScroll`, and for each fix above (97 tests total).
 
 ## [0.2.2] - 2026-06-13
 
@@ -114,7 +119,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Initial release: keyboard-first command palette with fuzzy search, grouped commands, arrow-key navigation with auto-scroll, light/dark mode and a Radix Dialog for accessibility.
 
-[Unreleased]: https://github.com/imAshutoshGupta/glyphx/compare/v0.2.2...HEAD
+[Unreleased]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/imAshutoshGupta/glyphx/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/imAshutoshGupta/glyphx/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/imAshutoshGupta/glyphx/compare/v0.1.2...v0.2.1
 [0.1.2]: https://github.com/imAshutoshGupta/glyphx/compare/v0.1.1...v0.1.2
