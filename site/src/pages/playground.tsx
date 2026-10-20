@@ -343,20 +343,20 @@ function Playground({
                 Clear
               </button>
             </div>
-            {events.length === 0 ? (
+            {events.length === 0 && (
               <p className="event-log-empty">
                 Open the palette and run something. Events appear here, newest first.
               </p>
-            ) : (
-              <ol className="event-log" aria-live="polite">
-                {events.map((event) => (
-                  <li key={event.id}>
-                    <time>{event.time}</time>
-                    <span>{event.text}</span>
-                  </li>
-                ))}
-              </ol>
             )}
+            {/* Always rendered, so screen readers announce the first event too. */}
+            <ol className="event-log" aria-live="polite">
+              {events.map((event) => (
+                <li key={event.id}>
+                  <time>{event.time}</time>
+                  <span>{event.text}</span>
+                </li>
+              ))}
+            </ol>
           </section>
 
           <section aria-labelledby="code-title">

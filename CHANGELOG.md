@@ -26,6 +26,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Fixed
 
 - The palette could appear behind sticky headers and other content with its own stacking order, because it had no `z-index`. The palette and its backdrop now have `z-index: 50`.
+- Subtitles and shortcut labels on the selected row were slightly below the WCAG AA contrast ratio in light mode. The light `--glyphx-muted` is a little darker.
 - An app's global focus style, such as `:focus-visible { outline: … }`, drew a box around the palette's search field. The field and dialog now keep their outline off; the text cursor shows where focus is.
 - Setting `data-glyphx-theme="light"` on the `<html>` element didn't force light colors while the OS was in dark mode. Color overrides on `:root` still win over GlyphX's defaults in both modes, as long as they load after `glyphx/style.css`.
 - The README said `<GlyphX>` could be rendered directly from a Next.js Server Component. Its commands contain functions, which Server Components can't pass to client components, so the README now shows defining the commands in a small client component. Its color example now sets separate light and dark values.

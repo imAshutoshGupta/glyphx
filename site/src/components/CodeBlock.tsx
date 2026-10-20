@@ -46,7 +46,7 @@ export function Code({ code, language = "tsx", title }: CodeProps) {
         <span>{title ?? LANGUAGE_LABELS[language]}</span>
         <CopyButton text={code} />
       </div>
-      <pre>
+      <pre tabIndex={0} aria-label={title ?? LANGUAGE_LABELS[language]}>
         <code>
           <Highlighted code={code} language={language} />
         </code>
@@ -64,13 +64,12 @@ export function InstallTabs() {
   return (
     <figure className="code">
       <div className="code-header">
-        <div className="code-tabs" role="tablist" aria-label="Package manager">
+        <div className="code-tabs" role="group" aria-label="Package manager">
           {managers.map((name) => (
             <button
               key={name}
               type="button"
-              role="tab"
-              aria-selected={name === manager}
+              aria-pressed={name === manager}
               onClick={() => setManager(name)}
             >
               {name}
@@ -79,7 +78,7 @@ export function InstallTabs() {
         </div>
         <CopyButton text={command} />
       </div>
-      <pre role="tabpanel" aria-label={`${manager} command`}>
+      <pre tabIndex={0} aria-label={`${manager} command`}>
         <code>
           <Highlighted code={command} language="bash" />
         </code>

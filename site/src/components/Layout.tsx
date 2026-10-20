@@ -67,9 +67,10 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
   const toast = useCallback((message: string) => {
     const id = ++nextToastId;
     setToasts((current) => [...current.slice(-2), { id, message }]);
+    // Longer messages stay up longer.
     window.setTimeout(
       () => setToasts((current) => current.filter((t) => t.id !== id)),
-      4000
+      4000 + message.length * 50
     );
   }, []);
 
@@ -101,7 +102,7 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
 
       <header className="site-header">
         <div className="container site-header-inner">
-          <a className="brand" href={PAGES.home} aria-label="GlyphX home">
+          <a className="brand" href={PAGES.home}>
             <img src={logoUrl} alt="" width={28} height={28} />
             GlyphX
             <span className="brand-version">v{VERSION}</span>
@@ -128,7 +129,6 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
               type="button"
               className="search-button"
               onClick={() => openPalette()}
-              aria-label="Search the site and run commands"
             >
               <Search size={15} aria-hidden />
               <span className="search-label">Search or run a command…</span>

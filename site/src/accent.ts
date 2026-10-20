@@ -14,7 +14,7 @@ export const ACCENTS: Accent[] = [
   { id: "blue", name: "Blue (default)", light: "37 99 235", dark: "96 165 250" },
   { id: "violet", name: "Violet", light: "109 40 217", dark: "167 139 250" },
   { id: "emerald", name: "Emerald", light: "4 120 87", dark: "52 211 153" },
-  { id: "rose", name: "Rose", light: "225 29 72", dark: "251 113 133" },
+  { id: "rose", name: "Rose", light: "190 18 60", dark: "251 113 133" },
   { id: "amber", name: "Amber", light: "180 83 9", dark: "251 191 36" },
 ];
 

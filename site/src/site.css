@@ -10,7 +10,8 @@
   --site-bg: 255 255 255;
   --site-fg: 10 10 10;
   --site-muted: 82 82 91;
-  --site-subtle: 140 140 150;
+  --site-subtle: 113 113 122;
+  --site-input-border: 161 161 170;
   --site-border: 229 229 232;
   --site-surface: 250 250 250;
   --site-surface-2: 243 243 245;
@@ -25,7 +26,8 @@
     --site-bg: 9 9 11;
     --site-fg: 250 250 250;
     --site-muted: 161 161 170;
-    --site-subtle: 113 113 122;
+    --site-subtle: 140 140 150;
+    --site-input-border: 82 82 91;
     --site-border: 39 39 42;
     --site-surface: 17 17 19;
     --site-surface-2: 28 28 31;
@@ -40,7 +42,8 @@
   --site-bg: 9 9 11;
   --site-fg: 250 250 250;
   --site-muted: 161 161 170;
-  --site-subtle: 113 113 122;
+  --site-subtle: 140 140 150;
+  --site-input-border: 82 82 91;
   --site-border: 39 39 42;
   --site-surface: 17 17 19;
   --site-surface-2: 28 28 31;
@@ -384,9 +387,17 @@ p {
     background: rgb(var(--site-bg));
   }
 
-  .search-button .search-label,
   .search-button .search-shortcut {
     display: none;
+  }
+
+  /* Hidden visually, but still the button's spoken name. */
+  .search-button .search-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
   }
 
   .menu-button {
@@ -537,6 +548,7 @@ p {
 }
 
 .code-tabs button {
+  outline-offset: -2px;
   padding: 0 10px;
   border: 0;
   border-bottom: 2px solid transparent;
@@ -546,7 +558,7 @@ p {
   cursor: pointer;
 }
 
-.code-tabs button[aria-selected="true"] {
+.code-tabs button[aria-pressed="true"] {
   border-bottom-color: rgb(var(--site-fg));
   color: rgb(var(--site-fg));
   font-weight: 500;
@@ -818,9 +830,9 @@ p {
 .feature-key {
   display: inline-grid;
   place-items: center;
-  min-width: 44px;
+  width: 48px;
   height: 44px;
-  padding: 0 10px;
+  padding: 0;
   border: 1px solid rgb(var(--site-border));
   border-bottom-width: 3px;
   border-radius: 10px;
@@ -916,7 +928,7 @@ p {
 .scratchpad input {
   height: 42px;
   padding: 0 12px;
-  border: 1px solid rgb(var(--site-border));
+  border: 1px solid rgb(var(--site-input-border));
   border-radius: 10px;
   background: rgb(var(--site-bg));
   color: rgb(var(--site-fg));
@@ -1082,6 +1094,10 @@ p {
   border-left: 1px solid rgb(var(--site-border));
   color: rgb(var(--site-muted));
   text-decoration: none;
+}
+
+.docs-sidebar a:focus-visible {
+  outline-offset: -2px;
 }
 
 .docs-sidebar a:hover {
@@ -1530,7 +1546,7 @@ h3:hover .heading-anchor,
 .pg-focus-target input {
   height: 38px;
   padding: 0 12px;
-  border: 1px solid rgb(var(--site-border));
+  border: 1px solid rgb(var(--site-input-border));
   border-radius: 9px;
   background: rgb(var(--site-bg));
   color: rgb(var(--site-fg));

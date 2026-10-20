@@ -104,7 +104,7 @@ function PalettePreview() {
           </div>
         </div>
       </div>
-      <span className="preview-hint keyboard-only">
+      <span className="preview-hint keyboard-only" aria-hidden>
         Click it, or press {MOD} K
       </span>
     </button>

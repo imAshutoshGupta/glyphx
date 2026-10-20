@@ -46,7 +46,7 @@ function Section({ id, children }: { id: DocSectionId; children: ReactNode }) {
     <section id={id} aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>
         {titleOf(id)}
-        <a className="heading-anchor" href={`#${id}`} aria-label={`Link to “${titleOf(id)}”`}>
+        <a className="heading-anchor" href={`#${id}`} aria-hidden tabIndex={-1}>
           #
         </a>
       </h2>
@@ -67,7 +67,7 @@ function Callout({ tone = "info", children }: { tone?: "info" | "tip" | "warning
 
 function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
   return (
-    <div className="table-wrap">
+    <div className="table-wrap" tabIndex={0} role="region" aria-label="Table">
       <table>
         <thead>
           <tr>
