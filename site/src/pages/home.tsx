@@ -6,14 +6,14 @@ import { Layout } from "../components/Layout";
 import { Code, InstallTabs } from "../components/CodeBlock";
 import { useSite } from "../context";
 import { CHANGELOG_URL, PAGES, VERSION } from "../links";
-import { MOD } from "../platform";
+import { useMod } from "../platform";
 import { QUICK_START } from "../snippets";
 
-const FEATURES = [
+const features = (mod: string) => [
   {
     key: "↵",
     title: "Keyboard-first",
-    text: `Opens with ${MOD} Shift P by default (this site adds ${MOD} K), then arrows, Enter and Esc. Pick your own shortcuts.`,
+    text: `Opens with ${mod} Shift P by default (this site adds ${mod} K), then arrows, Enter and Esc. Pick your own shortcuts.`,
   },
   {
     key: "≈",
@@ -65,6 +65,7 @@ const THINGS_TO_TRY = [
 // the real thing in both themes. Clicking it opens the real one.
 function PalettePreview() {
   const { openPalette } = useSite();
+  const mod = useMod();
 
   return (
     <button
@@ -105,7 +106,7 @@ function PalettePreview() {
         </div>
       </div>
       <span className="preview-hint keyboard-only" aria-hidden>
-        Click it, or press {MOD} K
+        Click it, or press {mod} K
       </span>
     </button>
   );
@@ -113,6 +114,7 @@ function PalettePreview() {
 
 function Home({ scratchpad }: { scratchpad: RefObject<HTMLInputElement | null> }) {
   const { openPalette } = useSite();
+  const mod = useMod();
 
   return (
     <>
@@ -132,7 +134,7 @@ function Home({ scratchpad }: { scratchpad: RefObject<HTMLInputElement | null> }
             <div className="hero-actions">
               <button type="button" className="button button-primary" onClick={() => openPalette()}>
                 Try it now
-                <kbd className="kbd keyboard-only">{MOD} K</kbd>
+                <kbd className="kbd keyboard-only">{mod} K</kbd>
               </button>
               <a className="button button-secondary" href={`${PAGES.docs}#installation`}>
                 Get started
@@ -157,7 +159,7 @@ function Home({ scratchpad }: { scratchpad: RefObject<HTMLInputElement | null> }
             </p>
           </div>
           <div className="feature-grid">
-            {FEATURES.map(({ key, title, text }) => (
+            {features(mod).map(({ key, title, text }) => (
               <div key={title} className="feature">
                 <span className="feature-key" aria-hidden>
                   {key}
@@ -176,7 +178,7 @@ function Home({ scratchpad }: { scratchpad: RefObject<HTMLInputElement | null> }
             <p className="section-kicker">Try it</p>
             <h2 id="try-title">This whole website runs on GlyphX</h2>
             <p className="section-lead">
-              Press <kbd className="kbd">{MOD}</kbd> <kbd className="kbd">K</kbd> or
+              Press <kbd className="kbd">{mod}</kbd> <kbd className="kbd">K</kbd> or
               use the search button at the top, then type one of these, or click
               a card to try it. There are more than 50 commands to explore.
             </p>

@@ -23,5 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-# Playground website build (npm run build:site)
+# Website build (npm run build:site)
 dist-site
+dist-site-ssr

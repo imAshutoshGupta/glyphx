@@ -146,6 +146,23 @@ const siteConfig: UserConfig = {
   },
 };
 
-export default defineConfig(({ mode }) =>
-  mode === "umd" ? umdConfig : mode === "site" ? siteConfig : libraryConfig
-);
+// `vite build --mode prerender`: the website's pages built for Node, which
+// scripts/prerender-site.mjs uses to write each page's HTML into dist-site/.
+const prerenderConfig: UserConfig = {
+  ...siteConfig,
+  // The typeface packages are CSS, which Node can't import: bundle them.
+  ssr: { noExternal: [/^@fontsource/] },
+  build: {
+    ssr: resolve(siteRoot, "src/prerender.ts"),
+    outDir: resolve(__dirname, "dist-site-ssr"),
+    emptyOutDir: true,
+  },
+};
+
+const CONFIGS: Record<string, UserConfig> = {
+  umd: umdConfig,
+  site: siteConfig,
+  prerender: prerenderConfig,
+};
+
+export default defineConfig(({ mode }) => CONFIGS[mode] ?? libraryConfig);

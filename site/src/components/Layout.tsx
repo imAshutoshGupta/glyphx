@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   GlyphX,
   type Command,
@@ -19,7 +19,7 @@ import {
   REPO_URL,
   VERSION,
 } from "../links";
-import { MOD } from "../platform";
+import { useMod } from "../platform";
 import { applyTheme, readStoredTheme, storeTheme } from "../theme";
 import { typeIntoPalette } from "../typeIntoPalette";
 
@@ -53,7 +53,11 @@ type LayoutProps = {
 let nextToastId = 0;
 
 export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
-  const [theme, setThemeState] = useState<GlyphXTheme>(readStoredTheme);
+  const mod = useMod();
+  // Starts as "system" to match the prerendered HTML; the stored choice is
+  // already applied to the page by the inline script in <head>.
+  const [theme, setThemeState] = useState<GlyphXTheme>("system");
+  useEffect(() => setThemeState(readStoredTheme()), []);
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [toasts, setToasts] = useState<{ id: number; message: string }[]>([]);
@@ -133,7 +137,7 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
               <Search size={15} aria-hidden />
               <span className="search-label">Search or run a command…</span>
               <span className="search-shortcut" aria-hidden>
-                <kbd className="kbd">{MOD}</kbd>
+                <kbd className="kbd">{mod}</kbd>
                 <kbd className="kbd">K</kbd>
               </span>
             </button>
@@ -268,7 +272,7 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
           <div className="footer-bottom">
             <span>© 2026 Ashutosh Gupta. Released under the MIT License.</span>
             <span className="keyboard-only">
-              Press <kbd className="kbd">{MOD}</kbd> <kbd className="kbd">K</kbd>{" "}
+              Press <kbd className="kbd">{mod}</kbd> <kbd className="kbd">K</kbd>{" "}
               on any page to open the palette.
             </span>
           </div>

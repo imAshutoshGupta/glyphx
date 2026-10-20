@@ -2,10 +2,11 @@ import { render } from "../render";
 import { Layout } from "../components/Layout";
 import { useSite } from "../context";
 import { PAGES } from "../links";
-import { MOD } from "../platform";
+import { useMod } from "../platform";
 
 function NotFound() {
   const { openPalette } = useSite();
+  const mod = useMod();
 
   return (
     <div className="container not-found">
@@ -18,7 +19,7 @@ function NotFound() {
       <div className="hero-actions">
         <button type="button" className="button button-primary" onClick={() => openPalette()}>
           Open the palette
-          <kbd className="kbd keyboard-only">{MOD} K</kbd>
+          <kbd className="kbd keyboard-only">{mod} K</kbd>
         </button>
         <a className="button button-secondary" href={PAGES.home}>
           Go to the homepage

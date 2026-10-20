@@ -5,7 +5,7 @@ import { Layout } from "../components/Layout";
 import { Code, InstallTabs } from "../components/CodeBlock";
 import { DOC_SECTIONS, type DocSectionId } from "../docsSections";
 import { PAGES } from "../links";
-import { MOD } from "../platform";
+import { useMod } from "../platform";
 import { CSS_IMPORT, QUICK_START } from "../snippets";
 
 const SECTION_IDS = DOC_SECTIONS.map((section) => section.id);
@@ -96,6 +96,7 @@ const Kbd = ({ children }: { children: ReactNode }) => <kbd className="kbd">{chi
 
 function Docs() {
   const active = useActiveSection();
+  const mod = useMod();
 
   return (
     <div className="container">
@@ -168,7 +169,7 @@ function Docs() {
             </p>
             <Code code={QUICK_START} title="App.tsx" />
             <p>
-              Press <Kbd>{MOD}</Kbd> <Kbd>Shift</Kbd> <Kbd>P</Kbd> to open it
+              Press <Kbd>{mod}</Kbd> <Kbd>Shift</Kbd> <Kbd>P</Kbd> to open it
               (Firefox keeps this shortcut for itself; see{" "}
               <a href="#shortcuts">Keyboard shortcuts</a>).
               Type to search, use <Kbd>↑</Kbd> <Kbd>↓</Kbd> to choose, press{" "}

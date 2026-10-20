@@ -21,7 +21,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
   - **Privacy and data:** what the site stores (only a theme choice) and confirmation that GlyphX collects nothing.
   - A monochrome design that follows light and dark mode, a palette with more than 50 commands on every page, link previews for social sites, and a 404 page.
 
-  The site lives in `site/` and imports `glyphx` from `src/`. `npm run dev` starts it, `npm run build:site` builds it into `dist-site/`, `npm run preview` serves that folder, and CI builds it on every push. The old playground files (`index.html`, `src/App.tsx`, `src/main.tsx`, `src/demo.css`) moved into it.
+  Every page is prerendered to HTML at build time, so its content shows before JavaScript runs and search engines can read it. The site lives in `site/` and imports `glyphx` from `src/`. `npm run dev` starts it, `npm run build:site` builds it into `dist-site/`, `npm run preview` serves that folder, and CI builds it on every push. The old playground files (`index.html`, `src/App.tsx`, `src/main.tsx`, `src/demo.css`) moved into it.
 
 ### Fixed
 

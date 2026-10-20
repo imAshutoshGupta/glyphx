@@ -5,7 +5,7 @@ import { Layout } from "../components/Layout";
 import { Code } from "../components/CodeBlock";
 import { useSite } from "../context";
 import { ACCENTS, DEFAULT_ACCENT, applyAccent, themedVariableCss, type Accent } from "../accent";
-import { MOD } from "../platform";
+import { useMod } from "../platform";
 
 // ─── Options ─────────────────────────────────────────────────────────────────
 
@@ -18,11 +18,12 @@ const COMMAND_SETS: { id: CommandSet; label: string; description: string }[] = [
   { id: "flat", label: "Flat list", description: "No groups at all" },
 ];
 
-const SHORTCUT_OPTIONS: { id: string; label: string; config: ShortcutConfig }[] = [
-  { id: "shift-p", label: `${MOD} Shift P (default)`, config: { key: "p", shift: true } },
-  { id: "k", label: `${MOD} K`, config: { key: "k" } },
-  { id: "j", label: `${MOD} J`, config: { key: "j" } },
-  { id: "slash", label: `${MOD} /`, config: { key: "/" } },
+// `keys` follow the platform's primary key (⌘ or Ctrl) in the labels.
+const SHORTCUT_OPTIONS: { id: string; keys: string; config: ShortcutConfig }[] = [
+  { id: "shift-p", keys: "Shift P", config: { key: "p", shift: true } },
+  { id: "k", keys: "K", config: { key: "k" } },
+  { id: "j", keys: "J", config: { key: "j" } },
+  { id: "slash", keys: "/", config: { key: "/" } },
 ];
 
 const THEMES: GlyphXTheme[] = ["system", "light", "dark"];
@@ -35,13 +36,13 @@ type Log = (text: string) => void;
 
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function starterCommands(log: Log, grouped = true): Command[] {
+function starterCommands(log: Log, mod: string, grouped = true): Command[] {
   const commands: Command[] = [
-    { id: "home", title: "Go to Home", subtitle: "The start page", keywords: ["start", "dashboard"], shortcut: `${MOD} H`, group: "Navigation", run: () => log("Navigated home (pretend)") },
-    { id: "settings", title: "Open Settings", subtitle: "Account, notifications and billing", keywords: ["preferences", "options", "config"], shortcut: `${MOD} ,`, group: "Navigation", run: () => log("Opened settings (pretend)") },
+    { id: "home", title: "Go to Home", subtitle: "The start page", keywords: ["start", "dashboard"], shortcut: `${mod} H`, group: "Navigation", run: () => log("Navigated home (pretend)") },
+    { id: "settings", title: "Open Settings", subtitle: "Account, notifications and billing", keywords: ["preferences", "options", "config"], shortcut: `${mod} ,`, group: "Navigation", run: () => log("Opened settings (pretend)") },
     { id: "profile", title: "View Profile", subtitle: "Your public page", keywords: ["account", "me", "user"], group: "Navigation", run: () => log("Opened profile (pretend)") },
-    { id: "new-doc", title: "New Document", subtitle: "Start from a blank page", keywords: ["create", "add", "file"], shortcut: `${MOD} N`, group: "Actions", run: () => log("Created a document (pretend)") },
-    { id: "save", title: "Save", subtitle: "Save your changes", keywords: ["store", "write"], shortcut: `${MOD} S`, group: "Actions", run: () => log("Saved (pretend)") },
+    { id: "new-doc", title: "New Document", subtitle: "Start from a blank page", keywords: ["create", "add", "file"], shortcut: `${mod} N`, group: "Actions", run: () => log("Created a document (pretend)") },
+    { id: "save", title: "Save", subtitle: "Save your changes", keywords: ["store", "write"], shortcut: `${mod} S`, group: "Actions", run: () => log("Saved (pretend)") },
     { id: "share", title: "Copy Share Link", subtitle: "Anyone with the link can view", keywords: ["url", "invite", "clipboard"], group: "Actions", run: () => log("Copied a share link (pretend)") },
     { id: "shortcuts", title: "Keyboard Shortcuts", subtitle: "See every shortcut", keywords: ["keys", "hotkeys", "help"], shortcut: "?", group: "Help", run: () => log("Opened the shortcut list (pretend)") },
     { id: "support", title: "Contact Support", subtitle: "We usually reply within a day", keywords: ["help", "email", "chat"], group: "Help", run: () => log("Opened support (pretend)") },
@@ -178,6 +179,7 @@ function Playground({
   log,
 }: ContentProps) {
   const { openPalette } = useSite();
+  const mod = useMod();
 
   const toggleShortcut = (id: string) =>
     setShortcutIds(
@@ -273,7 +275,10 @@ function Playground({
                       checked={shortcutIds.includes(option.id)}
                       onChange={() => toggleShortcut(option.id)}
                     />
-                    <span>{option.label}</span>
+                    <span>
+                      {mod} {option.keys}
+                      {option.id === "shift-p" && " (default)"}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -323,7 +328,7 @@ function Playground({
               <p>
                 {shortcuts.length > 0
                   ? `or press ${SHORTCUT_OPTIONS.filter((o) => shortcutIds.includes(o.id))
-                      .map((o) => o.label.replace(" (default)", ""))
+                      .map((o) => `${mod} ${o.keys}`)
                       .join(" or ")}`
                   : "No shortcut selected: only the button opens it."}
               </p>
@@ -393,6 +398,7 @@ function PlaygroundPage() {
   const [accent, setAccent] = useState<Accent>(DEFAULT_ACCENT);
   const [events, setEvents] = useState<Event[]>([]);
   const focusTarget = useRef<HTMLInputElement>(null);
+  const mod = useMod();
 
   const log = useCallback((text: string) => {
     const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -404,9 +410,9 @@ function PlaygroundPage() {
   const commands = useMemo(() => {
     const base =
       commandSet === "starter"
-        ? starterCommands(log)
+        ? starterCommands(log, mod)
         : commandSet === "flat"
-          ? starterCommands(log, false)
+          ? starterCommands(log, mod, false)
           : commandSet === "kitchen-sink"
             ? kitchenSinkCommands(log, focusTarget)
             : largeCommands(log);
@@ -427,7 +433,7 @@ function PlaygroundPage() {
         }
       },
     }));
-  }, [commandSet, display, log]);
+  }, [commandSet, display, log, mod]);
 
   const shortcuts = useMemo(
     () => SHORTCUT_OPTIONS.filter((o) => shortcutIds.includes(o.id)).map((o) => o.config),

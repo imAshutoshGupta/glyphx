@@ -294,7 +294,7 @@ The package also has a UMD build for pages without a bundler. It needs React 18'
 ```bash
 npm install
 npm run dev          # the website (site/), using the library source in src/
-npm run build:site   # build the website into dist-site/
+npm run build:site   # build the website into dist-site/, with each page prerendered to HTML
 npm run preview      # serve dist-site/ locally
 npm test             # unit and component tests
 npm run lint         # ESLint
