@@ -20,7 +20,10 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  /* Skips <html data-glyphx-theme="light"> so a light theme set there still
+     wins in dark mode. :where() keeps the specificity at that of :root, so an
+     app's own :root overrides still win. */
+  :root:where(:not([data-glyphx-theme="light"])) {
     --glyphx-bg: 9 9 11;
     --glyphx-fg: 244 244 245;
     --glyphx-muted: 161 161 170;
@@ -45,14 +48,18 @@
    Safari to re-rasterize the blurred page every frame while the list
    scrolls, which made scrolling janky. The palette itself keeps its
    translucent glass background. */
+/* z-index keeps the palette above page content that has its own stacking
+   order, such as sticky headers. Override it on both classes if needed. */
 .glyphx-overlay {
   position: fixed;
   inset: 0;
+  z-index: 50;
   background: rgb(0 0 0 / 0.4);
 }
 
 .glyphx-content {
   position: fixed;
+  z-index: 50;
   top: 20%;
   left: 0;
   right: 0;
@@ -110,6 +117,15 @@
   color: inherit;
   font: inherit;
   caret-color: rgb(var(--glyphx-fg));
+  outline: none;
+}
+
+/* The caret shows where focus is. The extra :focus-visible keeps an app's
+   global focus outline (often `:focus-visible { outline: … }`) off the
+   search field and the dialog. */
+.glyphx-input:focus,
+.glyphx-input:focus-visible,
+.glyphx-content:focus-visible {
   outline: none;
 }
 

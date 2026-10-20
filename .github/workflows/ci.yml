@@ -40,3 +40,6 @@ jobs:
 
       - name: Verify build output
         run: npm run verify:dist
+
+      - name: Build website
+        run: npm run build:site

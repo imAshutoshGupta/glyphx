@@ -115,12 +115,35 @@ const umdConfig: UserConfig = {
   },
 };
 
-// `vite build --mode site`: the playground as a static website, published to
-// GitHub Pages at https://imashutoshgupta.github.io/glyphx/.
+// `vite --mode site` / `vite build --mode site`: the website in site/,
+// published to GitHub Pages at https://imashutoshgupta.github.io/glyphx/.
+// It imports "glyphx" from this repository's source, so it always shows the
+// current code, and its examples read exactly like an app's.
+const siteRoot = resolve(__dirname, "site");
 const siteConfig: UserConfig = {
-  plugins: [react()],
+  root: siteRoot,
   base: "/glyphx/",
-  build: { outDir: "dist-site" },
+  plugins: [react()],
+  define: { __GLYPHX_VERSION__: JSON.stringify(pkg.version) },
+  resolve: {
+    alias: [
+      { find: /^glyphx\/style\.css$/, replacement: resolve(__dirname, "src/index.css") },
+      { find: /^glyphx$/, replacement: resolve(__dirname, "src/index.ts") },
+    ],
+  },
+  build: {
+    outDir: resolve(__dirname, "dist-site"),
+    emptyOutDir: true,
+    rolldownOptions: {
+      input: {
+        home: resolve(siteRoot, "index.html"),
+        docs: resolve(siteRoot, "docs/index.html"),
+        playground: resolve(siteRoot, "playground/index.html"),
+        privacy: resolve(siteRoot, "privacy/index.html"),
+        notFound: resolve(siteRoot, "404.html"),
+      },
+    },
+  },
 };
 
 export default defineConfig(({ mode }) =>

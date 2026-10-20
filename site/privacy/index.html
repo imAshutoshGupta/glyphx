@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy and data — GlyphX</title>
+    <meta name="description" content="This website uses no cookies or tracking, and the GlyphX library collects no data. Here is exactly what is stored, and where." />
+    <link rel="canonical" href="https://imashutoshgupta.github.io/glyphx/privacy/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="GlyphX" />
+    <meta property="og:title" content="Privacy and data — GlyphX" />
+    <meta property="og:description" content="This website uses no cookies or tracking, and the GlyphX library collects no data. Here is exactly what is stored, and where." />
+    <meta property="og:url" content="https://imashutoshgupta.github.io/glyphx/privacy/" />
+    <meta property="og:image" content="https://imashutoshgupta.github.io/glyphx/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="GlyphX, the command palette for React" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#09090b" />
+    <script>
+      // Apply a saved light/dark choice before the page draws (see site/src/theme.ts).
+      try {
+        var theme = localStorage.getItem("glyphx-site-theme");
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.setAttribute("data-glyphx-theme", theme);
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="padding: 24px; font-family: system-ui, sans-serif">
+        This website needs JavaScript. You can read the GlyphX documentation on
+        <a href="https://github.com/imAshutoshGupta/glyphx#readme">GitHub</a> instead.
+      </p>
+    </noscript>
+    <script type="module" src="/src/pages/privacy.tsx"></script>
+  </body>
+</html>

@@ -20,4 +20,12 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Website page entry files render their page instead of exporting it,
+    // so a change reloads the page rather than hot-swapping components.
+    files: ['site/src/pages/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 ])

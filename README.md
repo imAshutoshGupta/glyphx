@@ -17,7 +17,7 @@
 
 GlyphX provides a clean, accessible, and native-feeling command menu inspired by macOS Spotlight and modern desktop tools.
 
-**[Try it in your browser →](https://imashutoshgupta.github.io/glyphx/)**
+**[Try it in your browser →](https://imashutoshgupta.github.io/glyphx/)** · **[Documentation](https://imashutoshgupta.github.io/glyphx/docs/)** · **[Playground](https://imashutoshgupta.github.io/glyphx/playground/)**
 
 ## Features
 
@@ -41,7 +41,7 @@ GlyphX provides a clean, accessible, and native-feeling command menu inspired by
 
 > **Why React 18 is the floor:** GlyphX depends on Zustand v5, which uses the native `useSyncExternalStore` API and therefore requires React 18 or newer. React 16/17 are not supported.
 
-The published bundle is marked as a client module (`"use client"`), so you can import `<GlyphX>` directly into a **Next.js App Router Server Component** — no manual `"use client"` wrapper needed.
+The published bundle is marked as a client module (`"use client"`), so it works in the **Next.js App Router**. Commands contain functions, which a Server Component can't pass to a client component, so define your commands in a small client component (see [Next.js](#nextjs) below).
 
 ## Installation
 
@@ -61,14 +61,45 @@ Import the stylesheet once at your app's entry point — it contains the theme v
 import "glyphx/style.css";
 ```
 
-**Next.js (App Router):** import the stylesheet once in your root layout (`app/layout.tsx`):
+### Next.js
+
+Define the commands in a client component, where they can also use the router:
+
+```tsx
+// app/command-palette.tsx
+"use client";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { GlyphX, type Command } from "glyphx";
+
+export function CommandPalette() {
+  const router = useRouter();
+  const commands = useMemo<Command[]>(
+    () => [{ id: "home", title: "Home", group: "Pages", run: () => router.push("/") }],
+    [router]
+  );
+  return <GlyphX commands={commands} />;
+}
+```
+
+Then import the stylesheet and render it once in your root layout, which stays a Server Component:
 
 ```tsx
 // app/layout.tsx
 import "glyphx/style.css";
-```
+import { CommandPalette } from "./command-palette";
 
-`<GlyphX>` ships with `"use client"` baked in, so you can render it from a Server Component (e.g. directly in a layout or page) without adding your own client wrapper.
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <CommandPalette />
+      </body>
+    </html>
+  );
+}
+```
 
 ## Basic Usage
 
@@ -151,11 +182,22 @@ GlyphX follows the system's light or dark setting. To match your app's theme tog
 
 `theme` is `"system"` (the default), `"light"` or `"dark"`.
 
-The colors are CSS variables holding space-separated RGB channels. Override any of them on `:root` (or, with a fixed `theme`, on `[data-glyphx-theme="light"]` / `[data-glyphx-theme="dark"]`):
+The colors are CSS variables holding space-separated RGB channels. Override them in CSS that loads after `glyphx/style.css`, with separate light and dark values:
 
 ```css
-:root {
+:root,
+[data-glyphx-theme="light"] {
   --glyphx-accent: 147 51 234; /* matched characters */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-glyphx-theme="light"]) {
+    --glyphx-accent: 192 132 252;
+  }
+}
+
+[data-glyphx-theme="dark"] {
+  --glyphx-accent: 192 132 252;
 }
 ```
 
@@ -169,6 +211,8 @@ The colors are CSS variables holding space-separated RGB channels. Override any 
 | `--glyphx-accent` | matched characters |
 | `--glyphx-bg` | page background (not used by the palette itself) |
 
+The palette and its backdrop have `z-index: 50`, which keeps them above most sticky headers. If something still covers them, raise it on `.glyphx-overlay, .glyphx-content`.
+
 ## Command Shape
 
 ```ts
@@ -179,13 +223,13 @@ type Command = {
   keywords?: string[]; // extra search terms, not displayed
   shortcut?: string;   // displayed on the right (e.g. "⌘ K")
   group?: string;      // groups commands under a heading
-  run: () => void | Promise<void>;
+  run: () => unknown;  // may return anything, including a promise
 };
 ```
 
-`run` is called once the palette has closed and focus is back on the page, so a command can move focus (for example into an editor or a search field). GlyphX doesn't wait for a returned promise. If `run` throws or rejects, the error is logged to the console with a `[glyphx]` prefix.
+`run` is called once the palette has closed and focus is back on the page, so a command can move focus (for example into an editor or a search field). It can return anything, so one-liners like `() => window.open(url)` type-check. GlyphX doesn't wait for a returned promise. If `run` throws or rejects, the error is logged to the console with a `[glyphx]` prefix.
 
-Title matches rank above subtitle matches, which rank above keyword matches.
+For equally good matches, title matches rank above subtitle matches, which rank above keyword matches.
 
 ### `keywords`
 
@@ -225,11 +269,11 @@ The default keyboard shortcut changed from `⌘/Ctrl + K` to `⌘/Ctrl + Shift +
 The package also has a UMD build for pages without a bundler. It needs React 18's UMD builds loaded first (React 19 ships none) and defines a `GlyphX` global:
 
 ```html
-<link rel="stylesheet" href="https://unpkg.com/glyphx/dist/index.css" />
+<link rel="stylesheet" href="https://unpkg.com/glyphx@0.3/dist/index.css" />
 <div id="palette"></div>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/glyphx/dist/index.umd.js"></script>
+<script src="https://unpkg.com/glyphx@0.3/dist/index.umd.js"></script>
 <script>
   const root = ReactDOM.createRoot(document.getElementById("palette"));
   root.render(
@@ -249,8 +293,8 @@ The package also has a UMD build for pages without a bundler. It needs React 18'
 
 ```bash
 npm install
-npm run dev          # playground app (src/App.tsx)
-npm run build:site   # playground as a static website, into dist-site/
+npm run dev          # the website (site/), using the library source in src/
+npm run build:site   # build the website into dist-site/
 npm run preview      # serve dist-site/ locally
 npm test             # unit and component tests
 npm run lint         # ESLint
@@ -261,9 +305,9 @@ npm run verify:dist  # check dist (see scripts/verify-dist.mjs)
 
 `verify:dist` checks that the ESM and CommonJS builds start with `"use client"`, load, and import their dependencies instead of bundling them; that TypeScript finds the types through both `import` and `require`; that the UMD build runs with only the `React` and `ReactDOM` globals; and that the stylesheet only styles GlyphX's own elements.
 
-CI runs lint → type-check → test → build → verify:dist on Node 22 and 24 for every push and pull request to `main`. `prepublishOnly` runs build, verify:dist and test before publishing.
+CI runs lint → type-check → test → build → verify:dist → build the website on Node 22 and 24 for every push and pull request to `main`. `prepublishOnly` runs build, verify:dist and test before publishing.
 
-Every push to `main` also publishes the playground to [GitHub Pages](https://imashutoshgupta.github.io/glyphx/) (`.github/workflows/pages.yml`).
+The website in `site/` (home, docs, playground, privacy) imports `glyphx` from `src/`, so it always shows the current code. Every push to `main` publishes it to [GitHub Pages](https://imashutoshgupta.github.io/glyphx/) (`.github/workflows/pages.yml`).
 
 See [CHANGELOG.md](https://github.com/imAshutoshGupta/glyphx/blob/main/CHANGELOG.md) for release history.
 

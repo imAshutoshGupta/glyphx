@@ -5,6 +5,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-10-20
+
+### Changed
+
+- `Command.run` is typed `() => unknown` (was `() => void | Promise<void>`). One-liners whose result isn't void, such as `() => window.open(url)`, `() => element.classList.toggle("dark")` or the Pages Router's `() => router.push("/")`, were type errors. GlyphX still ignores the result and doesn't wait for promises. Code that compiled before still compiles.
+- New logo: a black tile showing a tiny command palette (a search field, a selected row and the next row), drawn in black and white. It replaces the terminal-prompt logo.
+
+### Added
+
+- A full website at [imashutoshgupta.github.io/glyphx](https://imashutoshgupta.github.io/glyphx/), published by GitHub Pages on every push to `main`. It replaces the single-page playground:
+  - **Home:** what GlyphX does, a live demo and a quick start.
+  - **Documentation:** installation, commands, search, shortcuts, controlled mode, theming, Next.js, script tags, TypeScript, accessibility, testing, tips, an FAQ and the API reference.
+  - **Playground:** switch command sets (including 1,000 commands), themes, shortcuts and accent colors, with a live event log and generated code.
+  - **Privacy and data:** what the site stores (only a theme choice) and confirmation that GlyphX collects nothing.
+  - A monochrome design that follows light and dark mode, a palette with more than 50 commands on every page, link previews for social sites, and a 404 page.
+
+  The site lives in `site/` and imports `glyphx` from `src/`. `npm run dev` starts it, `npm run build:site` builds it into `dist-site/`, `npm run preview` serves that folder, and CI builds it on every push. The old playground files (`index.html`, `src/App.tsx`, `src/main.tsx`, `src/demo.css`) moved into it.
+
+### Fixed
+
+- The palette could appear behind sticky headers and other content with its own stacking order, because it had no `z-index`. The palette and its backdrop now have `z-index: 50`.
+- An app's global focus style, such as `:focus-visible { outline: … }`, drew a box around the palette's search field. The field and dialog now keep their outline off; the text cursor shows where focus is.
+- Setting `data-glyphx-theme="light"` on the `<html>` element didn't force light colors while the OS was in dark mode. Color overrides on `:root` still win over GlyphX's defaults in both modes, as long as they load after `glyphx/style.css`.
+- The README said `<GlyphX>` could be rendered directly from a Next.js Server Component. Its commands contain functions, which Server Components can't pass to client components, so the README now shows defining the commands in a small client component. Its color example now sets separate light and dark values.
+
 ## [0.3.0] - 2026-10-20
 
 ### Changed
@@ -119,7 +144,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Initial release: keyboard-first command palette with fuzzy search, grouped commands, arrow-key navigation with auto-scroll, light/dark mode and a Radix Dialog for accessibility.
 
-[Unreleased]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/imAshutoshGupta/glyphx/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/imAshutoshGupta/glyphx/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/imAshutoshGupta/glyphx/compare/v0.1.2...v0.2.1

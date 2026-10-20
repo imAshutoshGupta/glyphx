@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
   <title>GlyphX</title>
-  <defs>
-    <linearGradient id="glyphx-tile" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#3f3f46"/>
-      <stop offset="1" stop-color="#09090b"/>
-    </linearGradient>
-  </defs>
-  <rect x="1" y="1" width="62" height="62" rx="15" fill="url(#glyphx-tile)"/>
-  <rect x="1.5" y="1.5" width="61" height="61" rx="14.5" stroke="#ffffff" stroke-opacity="0.14"/>
-  <path d="M19 21.5 30 32 19 42.5" stroke="#fafafa" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M35 42.5h11" stroke="#fafafa" stroke-opacity="0.55" stroke-width="5.5" stroke-linecap="round"/>
+  <rect width="64" height="64" rx="16" fill="#0a0a0a"/>
+  <!-- faint edge, so the tile stays visible on dark backgrounds -->
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" stroke="#ffffff" stroke-opacity="0.14" stroke-width="1.5"/>
+  <!-- search field with a text cursor -->
+  <rect x="13.5" y="14.5" width="37" height="10" rx="5" stroke="#fafafa" stroke-width="3"/>
+  <path d="M19.5 17v5" stroke="#fafafa" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- selected command -->
+  <rect x="12" y="31" width="40" height="9" rx="4.5" fill="#fafafa"/>
+  <!-- next command -->
+  <rect x="12" y="44" width="27" height="8" rx="4" fill="#fafafa" fill-opacity="0.32"/>
 </svg>

@@ -111,7 +111,7 @@ if (css !== null) {
   for (const [, selectors, body] of rules) {
     for (const selector of selectors.split(",").map((s) => s.trim())) {
       if (/^(from|to|[\d.]+%)$/.test(selector)) continue; // keyframe steps
-      if (selector === ":root") {
+      if (selector.startsWith(":root")) {
         const properties = body.split(";").map((d) => d.trim()).filter(Boolean);
         check(
           properties.every((d) => d.startsWith("--glyphx-")),

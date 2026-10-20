@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page not found — GlyphX</title>
+    <meta name="description" content="This page doesn't exist. The GlyphX command palette can take you anywhere on the site." />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#09090b" />
+    <script>
+      // Apply a saved light/dark choice before the page draws (see site/src/theme.ts).
+      try {
+        var theme = localStorage.getItem("glyphx-site-theme");
+        if (theme === "light" || theme === "dark") {
+          document.documentElement.setAttribute("data-glyphx-theme", theme);
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <p style="padding: 24px; font-family: system-ui, sans-serif">
+        This website needs JavaScript. You can read the GlyphX documentation on
+        <a href="https://github.com/imAshutoshGupta/glyphx#readme">GitHub</a> instead.
+      </p>
+    </noscript>
+    <script type="module" src="/src/pages/not-found.tsx"></script>
+  </body>
+</html>
