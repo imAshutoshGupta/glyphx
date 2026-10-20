@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" width="72" height="72" alt="GlyphX logo" />
+  <img src="https://raw.githubusercontent.com/imAshutoshGupta/glyphx/main/assets/logo.svg" width="72" height="72" alt="GlyphX logo" />
 </p>
 
 <h1 align="center">GlyphX</h1>
@@ -12,7 +12,7 @@
   <a href="https://www.npmjs.com/package/glyphx"><img src="https://img.shields.io/npm/v/glyphx?color=18181b" alt="npm version" /></a>
   <a href="https://github.com/imAshutoshGupta/glyphx/actions/workflows/ci.yml"><img src="https://github.com/imAshutoshGupta/glyphx/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
   <a href="https://bundlephobia.com/package/glyphx"><img src="https://img.shields.io/bundlephobia/minzip/glyphx?color=18181b" alt="Bundle size" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/npm/l/glyphx?color=18181b" alt="MIT license" /></a>
+  <a href="https://github.com/imAshutoshGupta/glyphx/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/glyphx?color=18181b" alt="MIT license" /></a>
 </p>
 
 GlyphX provides a clean, accessible, and native-feeling command menu inspired by macOS Spotlight and modern desktop tools.
@@ -265,7 +265,7 @@ CI runs lint → type-check → test → build → verify:dist on Node 22 and 24
 
 Every push to `main` also publishes the playground to [GitHub Pages](https://imashutoshgupta.github.io/glyphx/) (`.github/workflows/pages.yml`).
 
-See [CHANGELOG.md](CHANGELOG.md) for release history.
+See [CHANGELOG.md](https://github.com/imAshutoshGupta/glyphx/blob/main/CHANGELOG.md) for release history.
 
 ## Status
 
