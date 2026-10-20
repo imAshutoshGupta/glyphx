@@ -8,7 +8,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Changed
 
 - **Breaking (theme overrides only):** GlyphX's CSS custom properties and animations are namespaced. `--bg`, `--fg`, `--muted`, `--border` and `--glass` are now `--glyphx-bg`, `--glyphx-fg`, `--glyphx-muted`, `--glyphx-border` and `--glyphx-glass`, and the `spotlight-in` / `spotlight-out` keyframes are now `glyphx-in` / `glyphx-out`. The old names were set on `:root` unprefixed, so they could clash with an app's own tokens of the same name (for example shadcn/ui's `--border` and `--muted`) and change the app's colors or GlyphX's. If you overrode them to theme GlyphX, rename your overrides.
-- **Breaking (`<script>` tag only):** the UMD global is now `window.GlyphX` (was `window.Glyph`). ESM and CommonJS imports are unchanged.
+- **Breaking (`<script>` tag only):** the UMD global is now `window.GlyphX` (was `window.Glyph`), and the file is `dist/index.umd.js` (was `dist/index.umd.cjs`). ESM and CommonJS imports are unchanged.
+- **Breaking (controlled mode):** when you pass `open`, GlyphX now follows it and never opens or closes on its own. The shortcut, Escape, outside clicks and running a command call `onOpenChange` with the requested state. Before, the shortcut opened the palette even if the parent kept `open` at `false`, and running a command closed it without calling `onOpenChange(false)`. The parent's state then stayed `true`, so setting `open` to `true` again changed nothing and the palette couldn't be reopened.
+- **Breaking (tests that query the DOM):** command rows are now `role="option"` elements in a `role="listbox"`, and the search input is a `role="combobox"` that points at the selected row with `aria-activedescendant`. Rows used to be `<button>`s, so tests that found them with `getByRole("button")` need `getByRole("option")`.
+- `glyphx/style.css` no longer restyles the host page. It used to include Tailwind CSS, whose base reset changed headings, buttons, inputs, lists and images across the whole page, along with global utility classes such as `.flex` and `.fixed`. It is now plain CSS that styles only GlyphX's own `glyphx-*` classes and sets only `--glyphx-*` variables. It is 3.4 KB instead of 13 KB. Your own global styles also can't override the palette's any more: the old Tailwind styles were in a cascade layer, which any unlayered rule (such as `input { … }`) beats.
+- The ESM and CommonJS builds import Radix, Zustand and fuzzysort instead of bundling copies of them, so your package manager installs one shared copy. The ESM bundle is 10 KB instead of 68 KB. The CommonJS entry point is now `dist/index.cjs`.
+- Search matches the title, subtitle and keywords separately. Before, they were joined into one string, so a fuzzy match could take letters from more than one field ("homens" matched "Go **Hom**e" plus the keywords "**n**av **s**tart"). For equally good matches, a title match ranks above a subtitle match, which ranks above a keyword match.
+- Moving the pointer over a row selects it. Before, hovering highlighted the row under the pointer while the keyboard selection stayed highlighted elsewhere.
+- Commands run once the palette has closed, instead of while it is still open.
+- CI runs on Node 22 and 24 (was Node 20, which reached end of life in April 2026) and uses `actions/checkout` and `actions/setup-node` v7.
+- Development: Tailwind CSS, PostCSS and Autoprefixer are no longer used. `tailwind.config.ts` and `postcss.config.cjs` are removed. The playground has its own stylesheet, `src/demo.css`.
+- The playground's "Toggle Dark Mode" command switches the palette and the page between light and dark. Before, it toggled a `dark` class that nothing used.
 - The playground uses GlyphX branding throughout: page title (was `react-command-palette`), favicon (was a missing `vite.svg`), heading and copy. Its "Open GitHub" command opens the GlyphX repository.
 
 ### Fixed
@@ -17,14 +27,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Clicking a command now closes the palette immediately, the same as pressing Enter. Before, a click waited for an async `run()` to finish, so the palette stayed open until a slow command completed.
 - The ESM build (`dist/index.js`) no longer bundles React's JSX runtime. In 0.2.2 the bundled copy called `require("react")`, which throws in pure-ESM environments (for example Node ESM / SSR without a bundler). `react/jsx-runtime` and other React subpaths are now external, so GlyphX uses the consumer's React. The ESM bundle is also ~8 KB smaller.
 - Fixed two ESLint errors (`no-case-declarations` in `usePaletteNavigation`, `no-unused-expressions` in `GlyphX`). No behavior change.
+- Enter could run a different command than the highlighted one. Rows are displayed grouped, but Enter picked from the ungrouped, search-ranked order. Whenever commands from different groups were mixed, the two orders differed. For example, with Alpha (group X), Bravo (Y) and Charlie (X), pressing ↓ highlighted Charlie, but Enter ran Bravo.
+- Passing a new `commands` array while the palette was open cleared the search results back to the full list, though the search box still showed the typed text. The search and the selected command are now kept. This happened on any parent re-render that created the array inline.
+- Pressing Enter after tabbing to a row ran the keyboard-selected command instead of that row. Rows are no longer in the tab order; focus stays in the search input.
+- Pressing Enter to confirm text in an input method editor (IME) for Chinese, Japanese, Korean and similar languages ran a command. Keys pressed while the IME is composing text are now left to it.
+- Closing the palette left keyboard focus on the page body instead of returning it to where it was before opening, such as an editor or a form field.
+- A command that moves focus, such as "Focus search", lost it: commands ran while the palette still held focus, and closing then moved focus away. Commands now run after the palette has closed and focus has returned to the page.
+- The close animation never played: the palette and its backdrop disappeared at once. They now fade out, and both animations are skipped when the OS "reduce motion" setting is on.
+- Shortcuts with `alt: true` never fired on macOS, because Option changes the typed character (Option + J types `∆`). The default shortcut also didn't fire on non-Latin keyboard layouts such as Russian. Both now match the key's position on a US keyboard when the typed character isn't a Latin letter or digit.
+- The shortcut handler threw an error on the `keydown` events that browsers fire without a `key` while autofilling a form.
+- TypeScript reported error TS1479 when GlyphX was imported from a CommonJS module with `"moduleResolution": "node16"` or `"nodenext"`. CommonJS consumers now get `dist/index.d.cts`.
+- The UMD build expected a `ReactJSXRuntime` global that no page defines, so it failed when loaded with a `<script>` tag. It now needs only the `React` and `ReactDOM` globals.
+- The CI type-check step checked nothing: `tsc --noEmit` on the root `tsconfig.json`, which lists no files of its own. CI now runs `npm run typecheck` (`tsc -b`), which also checks the tests and `vite.config.ts`.
+- `vite.config.ts` used `environmentMatchGlobs`, which Vitest 4 removed. It now uses Vitest projects, so `.tsx` tests run in jsdom without a per-file `@vitest-environment` comment.
+- Errors from a command's `run` are logged with a `[glyphx]` prefix (was `[command-palette]`).
 
 ### Added
 
 - GlyphX logo (`assets/logo.svg`), used in the README header and as the playground favicon. The README also has npm version, CI, bundle-size and license badges.
 - `repository`, `homepage`, `bugs` and `author` fields in `package.json`, so the npm page links to the GitHub repository and issue tracker.
-- `npm run verify:dist` checks the build output: both bundles start with `"use client"`, the ESM and CommonJS entry points load and export `GlyphX`, the UMD build registers the `GlyphX` global, and the type declarations and stylesheet are present. It runs in CI and in `prepublishOnly`.
+- `theme` prop (`"system"`, `"light"` or `"dark"`), so the palette can follow your app's theme toggle instead of only the OS setting. The `GlyphXTheme` type is exported.
+- `shortcut` accepts an array of shortcuts. Firefox reserves the default ⌘/Ctrl + Shift + P for a new private window, so pages never receive it. The README shows how to add ⌘/Ctrl + K alongside it.
+- `npm run verify:dist` checks the build output:
+  - the ESM and CommonJS builds start with `"use client"`, load, export `GlyphX`, and import their dependencies instead of bundling them;
+  - TypeScript finds the types through both `import` and `require`;
+  - the UMD build runs with only the `React` and `ReactDOM` globals and registers the `GlyphX` global;
+  - the stylesheet only styles GlyphX's own elements.
+
+  It runs in CI and in `prepublishOnly`.
 - `npm run lint`, and a lint step in CI.
-- Tests for `useCommandShortcut`, `usePaletteNavigation` and `useAutoScroll` (64 tests total).
+- `npm run typecheck`.
+- The README documents the theme variables and how to load GlyphX with a `<script>` tag.
+- Tests for `useCommandShortcut`, `usePaletteNavigation`, `useAutoScroll`, and for each fix above (96 tests total).
 
 ## [0.2.2] - 2026-06-13
 

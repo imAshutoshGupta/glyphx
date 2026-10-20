@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { renderHook, cleanup, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useCommandShortcut } from "./useCommandShortcut";
@@ -119,6 +119,76 @@ describe("useCommandShortcut", () => {
     press({ key: "p", metaKey: true, shiftKey: true });
     expect(onTrigger).not.toHaveBeenCalled();
   });
+
+  it("accepts several shortcuts", () => {
+    setPlatform("MacIntel");
+    const onTrigger = vi.fn();
+    renderHook(() =>
+      useCommandShortcut(onTrigger, [{ key: "p", shift: true }, { key: "k" }])
+    );
+
+    press({ key: "p", metaKey: true, shiftKey: true });
+    press({ key: "k", metaKey: true });
+    expect(onTrigger).toHaveBeenCalledTimes(2);
+  });
+
+  it("matches the physical key when the layout types a non-Latin character", () => {
+    setPlatform("Win32");
+    const onTrigger = vi.fn();
+    renderHook(() => useCommandShortcut(onTrigger));
+
+    // Ctrl+Shift+P on a Russian layout
+    press({ key: "З", code: "KeyP", ctrlKey: true, shiftKey: true });
+    expect(onTrigger).toHaveBeenCalledOnce();
+  });
+
+  it("matches the physical key when Option changes the character on macOS", () => {
+    setPlatform("MacIntel");
+    const onTrigger = vi.fn();
+    renderHook(() => useCommandShortcut(onTrigger, { key: "j", alt: true }));
+
+    press({ key: "∆", code: "KeyJ", metaKey: true, altKey: true });
+    expect(onTrigger).toHaveBeenCalledOnce();
+  });
+
+  it("goes by the typed letter on remapped Latin layouts", () => {
+    setPlatform("MacIntel");
+    const onTrigger = vi.fn();
+    renderHook(() => useCommandShortcut(onTrigger));
+
+    // Dvorak: the key in QWERTY's P position types L.
+    press({ key: "L", code: "KeyP", metaKey: true, shiftKey: true });
+    expect(onTrigger).not.toHaveBeenCalled();
+  });
+
+  it("ignores keydown events without a key (browser autofill)", () => {
+    setPlatform("MacIntel");
+    const onTrigger = vi.fn();
+    renderHook(() => useCommandShortcut(onTrigger));
+
+    const event = new KeyboardEvent("keydown", { metaKey: true, shiftKey: true });
+    Object.defineProperty(event, "key", { value: undefined });
+    expect(() => window.dispatchEvent(event)).not.toThrow();
+    expect(onTrigger).not.toHaveBeenCalled();
+  });
+
+  it("calls the latest callback without re-adding the listener on each render", () => {
+    setPlatform("MacIntel");
+    const addListener = vi.spyOn(window, "addEventListener");
+    const first = vi.fn();
+    const second = vi.fn();
+    const { rerender } = renderHook(
+      // An inline shortcut object, as consumers usually pass it.
+      ({ onTrigger }) => useCommandShortcut(onTrigger, { key: "j" }),
+      { initialProps: { onTrigger: first } }
+    );
+    rerender({ onTrigger: second });
+
+    press({ key: "j", metaKey: true });
+    expect(first).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledOnce();
+    expect(addListener.mock.calls.filter(([type]) => type === "keydown")).toHaveLength(1);
+  });
 });
 
 describe("usePaletteNavigation", () => {
@@ -138,56 +208,71 @@ describe("usePaletteNavigation", () => {
     });
   });
 
-  const setup = (open = true) => {
+  const setup = () => {
     const commands = makeCommands();
-    act(() => {
-      usePaletteStore.getState().registerCommands(commands);
-      if (open) usePaletteStore.getState().open();
-    });
-    renderHook(() => usePaletteNavigation());
-    return commands;
+    act(() => usePaletteStore.getState().registerCommands(commands));
+    const onSelect = vi.fn();
+    const { result } = renderHook(() => usePaletteNavigation(onSelect));
+
+    // The handler is attached to the dialog with onKeyDown, so it receives
+    // React keyboard events.
+    const keyDown = (key: string, { isComposing = false, keyCode = 0 } = {}) => {
+      const event = { key, keyCode, nativeEvent: { isComposing }, preventDefault: vi.fn() };
+      act(() => result.current(event as unknown as ReactKeyboardEvent));
+      return event;
+    };
+
+    return { commands, onSelect, keyDown };
   };
 
-  it("ignores keys while the palette is closed", () => {
-    setup(false);
-    const event = press({ key: "ArrowDown" });
-    expect(usePaletteStore.getState().selectedIndex).toBe(0);
-    expect(event.defaultPrevented).toBe(false);
-  });
-
   it("moves the selection with the arrow keys", () => {
-    setup();
-    act(() => void press({ key: "ArrowDown" }));
+    const { keyDown } = setup();
+    keyDown("ArrowDown");
     expect(usePaletteStore.getState().selectedIndex).toBe(1);
 
-    act(() => void press({ key: "ArrowUp" }));
+    keyDown("ArrowUp");
     expect(usePaletteStore.getState().selectedIndex).toBe(0);
   });
 
-  it("runs the selected command and closes on Enter", () => {
-    const commands = setup();
-    act(() => void press({ key: "ArrowDown" }));
-    act(() => void press({ key: "Enter" }));
+  it("picks the selected command on Enter", () => {
+    const { commands, onSelect, keyDown } = setup();
+    keyDown("ArrowDown");
+    const event = keyDown("Enter");
 
-    expect(commands[1].run).toHaveBeenCalledOnce();
-    expect(commands[0].run).not.toHaveBeenCalled();
-    expect(usePaletteStore.getState().isOpen).toBe(false);
-  });
-
-  it("closes without running anything on Escape", () => {
-    const commands = setup();
-    act(() => void press({ key: "Escape" }));
-
-    expect(usePaletteStore.getState().isOpen).toBe(false);
-    expect(commands[0].run).not.toHaveBeenCalled();
+    expect(onSelect).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ id: "b", run: commands[1].run })
+    );
+    expect(event.preventDefault).toHaveBeenCalled();
   });
 
   it("does nothing on Enter when there are no results", () => {
-    setup();
+    const { onSelect, keyDown } = setup();
     act(() => usePaletteStore.getState().setQuery("zzzzzz"));
-    act(() => void press({ key: "Enter" }));
+    keyDown("Enter");
 
-    expect(usePaletteStore.getState().isOpen).toBe(true);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("leaves keys to an IME while it is composing text", () => {
+    const { onSelect, keyDown } = setup();
+    keyDown("ArrowDown", { isComposing: true });
+    const enter = keyDown("Enter", { isComposing: true });
+    // Safari: the Enter that ends composition has isComposing false.
+    keyDown("Enter", { keyCode: 229 });
+
+    expect(usePaletteStore.getState().selectedIndex).toBe(0);
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(enter.preventDefault).not.toHaveBeenCalled();
+  });
+
+  it("leaves other keys, including Escape, alone", () => {
+    const { onSelect, keyDown } = setup();
+    const letter = keyDown("a");
+    const escape = keyDown("Escape");
+
+    expect(letter.preventDefault).not.toHaveBeenCalled();
+    expect(escape.preventDefault).not.toHaveBeenCalled();
+    expect(onSelect).not.toHaveBeenCalled();
   });
 });
 

@@ -23,10 +23,11 @@ GlyphX provides a clean, accessible, and native-feeling command menu inspired by
 - Fuzzy search with ranked results
 - Arrow-key navigation with auto-scroll
 - Grouped commands with optional subtitles
-- System light / dark mode support
+- Light and dark mode: follows the system, or set it with the [`theme`](#theme) prop
 - Glass-style UI
-- Accessible by default (Radix Dialog)
+- Accessible: Radix Dialog focus handling, and combobox/listbox markup so screen readers announce the selected command
 - Smooth, GPU-composited animations
+- A self-contained stylesheet that never restyles the rest of your page
 
 ## Compatibility
 
@@ -34,7 +35,7 @@ GlyphX provides a clean, accessible, and native-feeling command menu inspired by
 | --- | --- |
 | **React** | 18 and 19 |
 | **Next.js** | 13.4+ (App Router) and 14 — also works on 15 via React 19 |
-| **Module formats** | ESM (`import`) and CommonJS (`require`) |
+| **Module formats** | ESM (`import`) and CommonJS (`require`), each with TypeScript types; UMD for a [`<script>` tag](#script-tag) |
 
 > **Why React 18 is the floor:** GlyphX depends on Zustand v5, which uses the native `useSyncExternalStore` API and therefore requires React 18 or newer. React 16/17 are not supported.
 
@@ -93,9 +94,9 @@ export default function App() {
 }
 ```
 
-> **Note:** Pass a stable (memoized) `commands` array. A new array reference on every render causes unnecessary re-normalization.
+> **Note:** Pass a stable (memoized) `commands` array. A new array reference on every render makes GlyphX re-index the commands each time. (The current search and selection are kept, so it costs time, not correctness.)
 
-Press ⌘ + Shift + P on macOS or Ctrl + Shift + P on Windows/Linux to open the palette. (The default avoids ⌘/Ctrl + K, which collides with the browser address-bar shortcut.) You can change it with the [`shortcut`](#custom-shortcut) prop.
+Press ⌘ + Shift + P on macOS or Ctrl + Shift + P on Windows/Linux to open the palette. (The default avoids ⌘/Ctrl + K, which collides with the browser address-bar shortcut.) You can change it with the [`shortcut`](#custom-shortcut) prop. **Firefox** reserves this combination for opening a private window and never passes it to the page, so add a second shortcut if your users are on Firefox (see [Custom Shortcut](#custom-shortcut)).
 
 ---
 
@@ -109,6 +110,8 @@ Press ⌘ + Shift + P on macOS or Ctrl + Shift + P on Windows/Linux to open the 
 />
 ```
 
+When you pass `open`, GlyphX follows it and never opens or closes on its own. The shortcut, Escape, clicking outside and running a command all call `onOpenChange` with the requested state; update `open` there, as above.
+
 ## Custom Shortcut
 
 By default the palette opens on `⌘ + Shift + P` (macOS) / `Ctrl + Shift + P` (Windows/Linux). The leading modifier is `⌘` on macOS and `Ctrl` elsewhere — detected automatically. Override the rest with the `shortcut` prop:
@@ -116,6 +119,12 @@ By default the palette opens on `⌘ + Shift + P` (macOS) / `Ctrl + Shift + P` (
 ```tsx
 // opens on ⌘/Ctrl + J
 <GlyphX commands={commands} shortcut={{ key: "j" }} />
+```
+
+Pass an array to accept several shortcuts. For example, to keep the default and also open on ⌘/Ctrl + K, which works in Firefox:
+
+```tsx
+<GlyphX commands={commands} shortcut={[{ key: "p", shift: true }, { key: "k" }]} />
 ```
 
 ```ts
@@ -127,6 +136,36 @@ type ShortcutConfig = {
 ```
 
 The primary modifier (`⌘` on macOS, `Ctrl` on Windows/Linux) is always required and is not configurable.
+
+A letter or digit `key` matches the key that types it, so Dvorak or Colemak users press the key labelled with that letter. When the pressed key types something else — on a non-Latin layout such as Russian, or with Option on macOS (Option + J types `∆`) — GlyphX matches the key in that letter's position on a US keyboard instead.
+
+## Theme
+
+GlyphX follows the system's light or dark setting. To match your app's theme toggle instead, pass `theme`:
+
+```tsx
+<GlyphX commands={commands} theme={isDark ? "dark" : "light"} />
+```
+
+`theme` is `"system"` (the default), `"light"` or `"dark"`.
+
+The colors are CSS variables holding space-separated RGB channels. Override any of them on `:root` (or, with a fixed `theme`, on `[data-glyphx-theme="light"]` / `[data-glyphx-theme="dark"]`):
+
+```css
+:root {
+  --glyphx-accent: 147 51 234; /* matched characters */
+}
+```
+
+| Variable | Used for |
+| --- | --- |
+| `--glyphx-glass` | palette background (with alpha, e.g. `255 255 255 / 0.92`) |
+| `--glyphx-fg` | text |
+| `--glyphx-muted` | subtitles, group headings, shortcuts, placeholder |
+| `--glyphx-border` | palette border |
+| `--glyphx-selected` | selected row background |
+| `--glyphx-accent` | matched characters |
+| `--glyphx-bg` | page background (not used by the palette itself) |
 
 ## Command Shape
 
@@ -141,6 +180,10 @@ type Command = {
   run: () => void | Promise<void>;
 };
 ```
+
+`run` is called once the palette has closed and focus is back on the page, so a command can move focus (for example into an editor or a search field). GlyphX doesn't wait for a returned promise. If `run` throws or rejects, the error is logged to the console with a `[glyphx]` prefix.
+
+Title matches rank above subtitle matches, which rank above keyword matches.
 
 ### `keywords`
 
@@ -175,6 +218,26 @@ The default keyboard shortcut changed from `⌘/Ctrl + K` to `⌘/Ctrl + Shift +
 <GlyphX commands={commands} shortcut={{ key: "k" }} />
 ```
 
+## Script Tag
+
+The package also has a UMD build for pages without a bundler. It needs React 18's UMD builds loaded first (React 19 ships none) and defines a `GlyphX` global:
+
+```html
+<link rel="stylesheet" href="https://unpkg.com/glyphx/dist/index.css" />
+<div id="palette"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/glyphx/dist/index.umd.js"></script>
+<script>
+  const root = ReactDOM.createRoot(document.getElementById("palette"));
+  root.render(
+    React.createElement(GlyphX.GlyphX, {
+      commands: [{ id: "hello", title: "Say hello", run: () => alert("Hello") }],
+    })
+  );
+</script>
+```
+
 ## Known Limitations
 
 - **Single instance per page:** GlyphX uses a module-level state store. Rendering two `<GlyphX>` components on the same page will cause them to share state (commands, open/closed status, query). Use one instance per page.
@@ -187,11 +250,14 @@ npm install
 npm run dev          # playground app (src/App.tsx)
 npm test             # unit and component tests
 npm run lint         # ESLint
-npm run build        # library build into dist/
-npm run verify:dist  # check dist: "use client" banner, ESM + CJS entry points, types, CSS
+npm run typecheck    # TypeScript, including tests and vite.config.ts
+npm run build        # library build into dist/: ESM, CommonJS, UMD, types, CSS
+npm run verify:dist  # check dist (see scripts/verify-dist.mjs)
 ```
 
-CI runs lint → type-check → test → build → verify:dist on every push and pull request to `main`. `prepublishOnly` runs build, verify:dist and test before publishing.
+`verify:dist` checks that the ESM and CommonJS builds start with `"use client"`, load, and import their dependencies instead of bundling them; that TypeScript finds the types through both `import` and `require`; that the UMD build runs with only the `React` and `ReactDOM` globals; and that the stylesheet only styles GlyphX's own elements.
+
+CI runs lint → type-check → test → build → verify:dist on Node 22 and 24 for every push and pull request to `main`. `prepublishOnly` runs build, verify:dist and test before publishing.
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
 

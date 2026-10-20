@@ -1,54 +1,51 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
-import type { ReactNode } from "react";
+import type { KeyboardEventHandler, ReactNode } from "react";
+import type { GlyphXTheme } from "../palette/types";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  // Called just before focus moves into the dialog.
+  onOpenAutoFocus: () => void;
+  // Called after the dialog has closed, when focus would return to the page.
+  onCloseAutoFocus: (event: Event) => void;
+  onKeyDown: KeyboardEventHandler<HTMLDivElement>;
+  theme: GlyphXTheme;
   children: ReactNode;
 };
 
-export function CommandDialog({ open, onOpenChange, children }: Props) {
+export function CommandDialog({
+  open,
+  onOpenChange,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
+  onKeyDown,
+  theme,
+  children,
+}: Props) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        {/* Plain dim instead of backdrop-blur: a full-viewport backdrop-filter
-            forces Safari to re-rasterize the blurred page every frame while the
-            list scrolls, which made scrolling janky. The palette itself keeps
-            its translucent glass background. */}
-        <Dialog.Overlay className="fixed inset-0 bg-black/40" />
+        <Dialog.Overlay className="glyphx-overlay" />
 
-        <div
-          className="
-            fixed left-1/2 top-[20%]
-            -translate-x-1/2
-            will-change-transform will-change-opacity
-            data-[state=open]:animate-[glyphx-in_180ms_cubic-bezier(0.16,1,0.3,1)]
-            data-[state=closed]:animate-[glyphx-out_120ms_ease-out]
-          "
-          data-state={open ? "open" : "closed"}
+        {/* The open/close animations are on the Overlay and Content
+            themselves, so Radix keeps both mounted until the close animation
+            has finished. */}
+        <Dialog.Content
+          className="glyphx-content"
+          data-glyphx-theme={theme === "system" ? undefined : theme}
+          onKeyDown={onKeyDown}
+          onOpenAutoFocus={onOpenAutoFocus}
+          onCloseAutoFocus={onCloseAutoFocus}
         >
-          <Dialog.Content
-            aria-describedby="glyphx-description"
-            className="
-              w-[520px] max-w-[90vw]
-              rounded-xl
-              border border-[rgb(var(--glyphx-border))]
-              bg-[rgb(var(--glyphx-glass))]
-              text-[rgb(var(--glyphx-fg))]
-              shadow-xl
-            "
-          >
-            <VisuallyHidden.Root>
-              <Dialog.Title>Command Palette</Dialog.Title>
-              <Dialog.Description id="glyphx-description">
-                Type to search and run commands
-              </Dialog.Description>
-            </VisuallyHidden.Root>
+          <VisuallyHidden.Root>
+            <Dialog.Title>Command Palette</Dialog.Title>
+            <Dialog.Description>Type to search and run commands</Dialog.Description>
+          </VisuallyHidden.Root>
 
-            {children}
-          </Dialog.Content>
-        </div>
+          {children}
+        </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );

@@ -6,9 +6,14 @@ export type ShortcutConfig = {
   alt?: boolean;
 };
 
+// "system" follows the OS setting (prefers-color-scheme).
+export type GlyphXTheme = "system" | "light" | "dark";
+
 export type GlyphXProps = {
   commands: Command[];
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  shortcut?: ShortcutConfig;
+  // Pass an array to accept several shortcuts.
+  shortcut?: ShortcutConfig | ShortcutConfig[];
+  theme?: GlyphXTheme;
 };

@@ -1,6 +1,15 @@
-@import "tailwindcss";
+/*
+ * GlyphX styles. Only GlyphX's own elements (.glyphx-*) are styled and only
+ * --glyphx-* variables are defined, so importing this file never restyles
+ * the rest of the page.
+ *
+ * Colors are space-separated RGB channels, used as rgb(var(--glyphx-fg)).
+ * Override them on :root. With a fixed `theme` prop, override them on
+ * [data-glyphx-theme="light"] or [data-glyphx-theme="dark"] instead.
+ */
 
-:root {
+:root,
+[data-glyphx-theme="light"] {
   --glyphx-bg: 255 255 255;
   --glyphx-fg: 24 24 27;
   --glyphx-muted: 113 113 122;
@@ -21,6 +30,192 @@
     --glyphx-accent: 96 165 250;
   }
 }
+
+[data-glyphx-theme="dark"] {
+  --glyphx-bg: 9 9 11;
+  --glyphx-fg: 244 244 245;
+  --glyphx-muted: 161 161 170;
+  --glyphx-border: 39 39 42;
+  --glyphx-glass: 24 24 27 / 0.92;
+  --glyphx-selected: 39 39 42;
+  --glyphx-accent: 96 165 250;
+}
+
+/* Plain dim instead of backdrop-blur: a full-viewport backdrop-filter forces
+   Safari to re-rasterize the blurred page every frame while the list
+   scrolls, which made scrolling janky. The palette itself keeps its
+   translucent glass background. */
+.glyphx-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.4);
+}
+
+.glyphx-content {
+  position: fixed;
+  top: 20%;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  width: 520px;
+  max-width: 90vw;
+  margin: 0 auto;
+  border: 1px solid rgb(var(--glyphx-border));
+  border-radius: 0.75rem;
+  background: rgb(var(--glyphx-glass));
+  color: rgb(var(--glyphx-fg));
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  outline: none;
+  will-change: transform, opacity;
+}
+
+.glyphx-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.glyphx-hint {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: rgb(var(--glyphx-muted));
+  font-size: 0.75rem;
+  line-height: 1rem;
+  pointer-events: none;
+  user-select: none;
+}
+
+.glyphx-hint kbd {
+  padding: 0.125rem 0.375rem;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+}
+
+.glyphx-input {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  caret-color: rgb(var(--glyphx-fg));
+  outline: none;
+}
+
+.glyphx-input::placeholder {
+  color: rgb(var(--glyphx-muted));
+  opacity: 1;
+}
+
+.glyphx-list {
+  max-height: 16rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  contain: layout paint;
+}
+
+.glyphx-group-heading {
+  padding: 0.5rem 0.75rem;
+  color: rgb(var(--glyphx-muted));
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1rem;
+}
+
+.glyphx-group {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.glyphx-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.glyphx-item[aria-selected="true"] {
+  background: rgb(var(--glyphx-selected));
+}
+
+.glyphx-item-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.glyphx-item-subtitle,
+.glyphx-item-shortcut {
+  color: rgb(var(--glyphx-muted));
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.glyphx-item-shortcut {
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.glyphx-highlight {
+  color: rgb(var(--glyphx-accent));
+}
+
+.glyphx-empty {
+  padding: 2rem 0.75rem;
+  color: rgb(var(--glyphx-muted));
+  text-align: center;
+}
+
+.glyphx-empty p {
+  margin: 0;
+}
+
+.glyphx-empty p + p {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+/* Radix keeps the overlay and content mounted until these close animations
+   have finished. */
+.glyphx-overlay[data-state="open"] {
+  animation: glyphx-fade-in 180ms ease-out;
+}
+
+.glyphx-overlay[data-state="closed"] {
+  animation: glyphx-fade-out 120ms ease-out;
+}
+
+.glyphx-content[data-state="open"] {
+  animation: glyphx-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glyphx-content[data-state="closed"] {
+  animation: glyphx-out 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glyphx-overlay[data-state],
+  .glyphx-content[data-state] {
+    animation: none;
+  }
+}
+
 @keyframes glyphx-in {
   from {
     opacity: 0;
@@ -43,3 +238,14 @@
   }
 }
 
+@keyframes glyphx-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes glyphx-fade-out {
+  to {
+    opacity: 0;
+  }
+}

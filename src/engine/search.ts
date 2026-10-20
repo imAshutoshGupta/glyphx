@@ -7,27 +7,15 @@ export type SearchResult<T> = {
   subtitleIndexes: readonly number[] | null;
 };
 
-function splitIndexes(
-  raw: readonly number[],
-  titleLength: number,
-  subtitleLength: number
-): { titleIndexes: number[]; subtitleIndexes: number[] } {
-  const subtitleStart = titleLength + 1; // +1 for the space separator
-  const subtitleEnd = subtitleStart + subtitleLength;
+// Title, subtitle and keywords are matched as separate fields, so a match
+// never spans two of them. A match in the title ranks above an equally good
+// match in the subtitle, which ranks above one in the keywords.
+const SEARCH_KEYS = ["title", "subtitle", "keywordsText"] as const;
+const SUBTITLE_WEIGHT = 0.9;
+const KEYWORDS_WEIGHT = 0.8;
 
-  const titleIdxs: number[] = [];
-  const subtitleIdxs: number[] = [];
-
-  for (const i of raw) {
-    if (i < titleLength) {
-      titleIdxs.push(i);
-    } else if (subtitleLength > 0 && i >= subtitleStart && i < subtitleEnd) {
-      subtitleIdxs.push(i - subtitleStart);
-    }
-  }
-
-  return { titleIndexes: titleIdxs, subtitleIndexes: subtitleIdxs };
-}
+const nonEmpty = (indexes: readonly number[]) =>
+  indexes.length > 0 ? indexes : null;
 
 export function searchCommands(
   commands: NormalizedCommand[],
@@ -42,21 +30,18 @@ export function searchCommands(
   }
 
   const results = fuzzysort.go(query, commands, {
-    key: "searchText",
-    threshold: -1000,
+    keys: SEARCH_KEYS,
+    scoreFn: ([title, subtitle, keywords]) =>
+      Math.max(
+        title.score,
+        subtitle.score * SUBTITLE_WEIGHT,
+        keywords.score * KEYWORDS_WEIGHT
+      ),
   });
 
-  return results.map((r) => {
-    const { titleIndexes, subtitleIndexes } = splitIndexes(
-      r.indexes,
-      r.obj.titleLength,
-      r.obj.subtitleLength
-    );
-
-    return {
-      item: r.obj,
-      titleIndexes: titleIndexes.length > 0 ? titleIndexes : null,
-      subtitleIndexes: subtitleIndexes.length > 0 ? subtitleIndexes : null,
-    };
-  });
+  return results.map((r) => ({
+    item: r.obj,
+    titleIndexes: nonEmpty(r[0].indexes),
+    subtitleIndexes: nonEmpty(r[1].indexes),
+  }));
 }

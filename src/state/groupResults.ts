@@ -1,13 +1,15 @@
 import type { SearchResult } from "../engine/search";
 import type { Command } from "../engine";
 
-export type GroupedResults = {
+export type GroupedResults<T extends Command = Command> = {
   group: string;
-  items: SearchResult<Command>[];
+  items: SearchResult<T>[];
 }[];
 
-export function groupResults(results: SearchResult<Command>[]): GroupedResults {
-  const map = new Map<string, SearchResult<Command>[]>();
+export function groupResults<T extends Command>(
+  results: SearchResult<T>[]
+): GroupedResults<T> {
+  const map = new Map<string, SearchResult<T>[]>();
 
   for (const result of results) {
     const group = result.item.group ?? "Other";

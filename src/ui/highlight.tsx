@@ -24,7 +24,7 @@ export function highlightText(text: string, indexes: readonly number[] | null) {
 
   return runs.map((run, i) =>
     run.highlight ? (
-      <span key={i} className="text-[rgb(var(--glyphx-accent))]">
+      <span key={i} className="glyphx-highlight">
         {run.text}
       </span>
     ) : (

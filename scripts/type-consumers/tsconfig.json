@@ -1,0 +1,13 @@
+{
+  // Used by verify-dist.mjs: type-checks an ESM and a CommonJS consumer
+  // against the built package, the way Node's module resolution sees it.
+  "compilerOptions": {
+    "module": "node16",
+    "moduleResolution": "node16",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": []
+  },
+  "files": ["esm.mts", "cjs.cts"]
+}

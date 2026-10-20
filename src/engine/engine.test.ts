@@ -14,24 +14,16 @@ const cmd = (overrides: Partial<Command> = {}): Command => ({
 // ─── normalizeCommands ────────────────────────────────────────────────────────
 
 describe("normalizeCommands", () => {
-  it("builds searchText from title", () => {
-    const [result] = normalizeCommands([cmd({ title: "Open Settings" })]);
-    expect(result.searchText).toBe("open settings");
-  });
-
-  it("includes subtitle in searchText", () => {
-    const [result] = normalizeCommands([
-      cmd({ title: "Go Home", subtitle: "Navigate to homepage" }),
-    ]);
-    expect(result.searchText).toContain("navigate to homepage");
-  });
-
-  it("includes keywords in searchText", () => {
+  it("joins keywords into keywordsText", () => {
     const [result] = normalizeCommands([
       cmd({ title: "Go Home", keywords: ["nav", "start"] }),
     ]);
-    expect(result.searchText).toContain("nav");
-    expect(result.searchText).toContain("start");
+    expect(result.keywordsText).toBe("nav start");
+  });
+
+  it("uses an empty keywordsText when there are no keywords", () => {
+    const [result] = normalizeCommands([cmd()]);
+    expect(result.keywordsText).toBe("");
   });
 
   it("preserves all original Command fields", () => {
@@ -44,23 +36,6 @@ describe("normalizeCommands", () => {
 
   it("handles empty keywords array without throwing", () => {
     expect(() => normalizeCommands([cmd({ keywords: [] })])).not.toThrow();
-  });
-
-  it("stores titleLength equal to lowercased title length", () => {
-    const [result] = normalizeCommands([cmd({ title: "Open Settings" })]);
-    expect(result.titleLength).toBe("open settings".length);
-  });
-
-  it("stores subtitleLength equal to lowercased subtitle length", () => {
-    const [result] = normalizeCommands([
-      cmd({ title: "Go Home", subtitle: "Navigate" }),
-    ]);
-    expect(result.subtitleLength).toBe("navigate".length);
-  });
-
-  it("stores subtitleLength of 0 when no subtitle", () => {
-    const [result] = normalizeCommands([cmd()]);
-    expect(result.subtitleLength).toBe(0);
   });
 });
 
@@ -129,6 +104,53 @@ describe("searchCommands", () => {
     const match = results.find((r) => r.item.id === "s");
     expect(match?.titleIndexes).not.toBeNull();
     expect(match?.subtitleIndexes).toBeNull();
+  });
+
+  it("returns indexes into the original title", () => {
+    const [match] = searchCommands(
+      normalizeCommands([cmd({ title: "Open Settings" })]),
+      "settings"
+    );
+    expect(match.titleIndexes).toEqual([5, 6, 7, 8, 9, 10, 11, 12]);
+  });
+
+  it("finds commands by keyword without highlighting anything", () => {
+    const [match] = searchCommands(
+      normalizeCommands([cmd({ id: "k", title: "Toggle Theme", keywords: ["appearance"] })]),
+      "appearance"
+    );
+    expect(match.item.id).toBe("k");
+    expect(match.titleIndexes).toBeNull();
+    expect(match.subtitleIndexes).toBeNull();
+  });
+
+  it("does not match across the title, subtitle and keywords", () => {
+    // "homens" would match "go HOMe" + "Nav Start" if the fields were joined.
+    const results = searchCommands(
+      normalizeCommands([cmd({ title: "Go Home", keywords: ["nav", "start"] })]),
+      "homens"
+    );
+    expect(results).toHaveLength(0);
+  });
+
+  it("ranks equally good title, subtitle and keyword matches in that order", () => {
+    const results = searchCommands(
+      normalizeCommands([
+        cmd({ id: "keyword", title: "Theme", keywords: ["edit settings"] }),
+        cmd({ id: "subtitle", title: "Preferences", subtitle: "Edit settings" }),
+        cmd({ id: "title", title: "Edit Settings" }),
+      ]),
+      "settings"
+    );
+    expect(results.map((r) => r.item.id)).toEqual(["title", "subtitle", "keyword"]);
+  });
+
+  it("matches multi-word queries whose words are in different fields", () => {
+    const results = searchCommands(
+      normalizeCommands([cmd({ id: "h", title: "Go Home", keywords: ["navigation"] })]),
+      "home nav"
+    );
+    expect(results.map((r) => r.item.id)).toEqual(["h"]);
   });
 });
 

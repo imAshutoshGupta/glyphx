@@ -3,6 +3,7 @@ import type { Command } from "../engine";
 import { normalizeCommands, searchCommands } from "../engine";
 import type { NormalizedCommand } from "../engine/normalize";
 import type { SearchResult } from "../engine/search";
+import { groupResults } from "./groupResults";
 
 type PaletteState = {
   commands: Command[];
@@ -13,12 +14,22 @@ type PaletteState = {
   selectedIndex: number;
   registerCommands: (commands: Command[]) => void;
   setQuery: (query: string) => void;
+  select: (index: number) => void;
   selectNext: () => void;
   selectPrev: () => void;
   selectFirst: () => void;
   open: () => void;
   close: () => void;
 };
+
+// Results are stored in display order: grouped, with groups in the order of
+// their best match. The list renders them in exactly this order, so
+// selectedIndex always points at the highlighted row.
+function computeResults(normalized: NormalizedCommand[], query: string) {
+  return groupResults(searchCommands(normalized, query)).flatMap(
+    (group) => group.items
+  );
+}
 
 export const usePaletteStore = create<PaletteState>((set, get) => ({
   commands: [],
@@ -28,30 +39,37 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
   isOpen: false,
   selectedIndex: 0,
 
+  // Keeps the current query and, if it is still listed, the selected command,
+  // so commands that change while the palette is open don't reset it.
   registerCommands: (commands) => {
+    const { query, results, selectedIndex } = get();
+    const selectedId = results[selectedIndex]?.item.id;
     const normalized = normalizeCommands(commands);
+    const nextResults = computeResults(normalized, query);
 
     set({
       commands,
       normalized,
-      results: normalized.map((cmd) => ({
-        item: cmd,
-        titleIndexes: null,
-        subtitleIndexes: null,
-      })),
-      selectedIndex: 0,
+      results: nextResults,
+      selectedIndex: Math.max(
+        nextResults.findIndex((r) => r.item.id === selectedId),
+        0
+      ),
     });
   },
 
   setQuery: (query) => {
-    const { normalized } = get();
-    const results = searchCommands(normalized, query);
-
     set({
       query,
-      results,
+      results: computeResults(get().normalized, query),
       selectedIndex: 0,
     });
+  },
+
+  select: (index) => {
+    if (index >= 0 && index < get().results.length) {
+      set({ selectedIndex: index });
+    }
   },
 
   selectNext: () => {
@@ -74,16 +92,16 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
 
   selectFirst: () => set({ selectedIndex: 0 }),
 
-  open: () => set({ isOpen: true }),
-  close: () =>
+  // Each open starts a fresh session. Resetting here rather than on close
+  // keeps the list unchanged while the close animation plays.
+  open: () => {
+    if (get().isOpen) return;
     set((state) => ({
-      isOpen: false,
+      isOpen: true,
       query: "",
       selectedIndex: 0,
-      results: state.normalized.map((cmd) => ({
-        item: cmd,
-        titleIndexes: null,
-        subtitleIndexes: null,
-      })),
-    })),
+      results: computeResults(state.normalized, ""),
+    }));
+  },
+  close: () => set({ isOpen: false }),
 }));

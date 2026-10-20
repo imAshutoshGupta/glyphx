@@ -10,12 +10,17 @@ jobs:
   ci:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+    strategy:
+      matrix:
+        # Maintained Node.js LTS lines (Node 20 reached end of life in April 2026).
+        node-version: [22, 24]
 
-      - uses: actions/setup-node@v4
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: npm
 
       - name: Install dependencies
@@ -25,7 +30,7 @@ jobs:
         run: npm run lint
 
       - name: Type check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: Test
         run: npm test
