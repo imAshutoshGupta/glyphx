@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-20
+
+### Changed
+
+- **License:** GlyphX is now licensed under the [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0) (was MIT). It's free for personal and other noncommercial use; commercial use needs the author's permission ([email](mailto:aguptaworkspace@gmail.com?subject=GlyphX%20commercial%20license)). Versions up to and including 0.3.1 remain available under the MIT License.
+- The README, website footer, privacy page and package metadata name the author, Ashutosh Gupta, with contact details. The website's palette has "Contact the developer" and "Ask about a commercial license" commands, and the docs FAQ explains commercial use.
+
 ## [0.3.1] - 2026-10-20
 
 ### Changed
@@ -146,7 +153,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Initial release: keyboard-first command palette with fuzzy search, grouped commands, arrow-key navigation with auto-scroll, light/dark mode and a Radix Dialog for accessibility.
 
-[Unreleased]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/imAshutoshGupta/glyphx/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/imAshutoshGupta/glyphx/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/imAshutoshGupta/glyphx/compare/v0.2.1...v0.2.2

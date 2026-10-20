@@ -1,7 +1,15 @@
 import { Check } from "lucide-react";
 import { render } from "../render";
 import { Layout } from "../components/Layout";
-import { GITHUB_PRIVACY_URL, ISSUES_URL, LICENSE_URL, REPO_URL } from "../links";
+import {
+  AUTHOR_EMAIL,
+  AUTHOR_GITHUB,
+  CONTACT_URL,
+  GITHUB_PRIVACY_URL,
+  ISSUES_URL,
+  LICENSE_URL,
+  REPO_URL,
+} from "../links";
 import { THEME_STORAGE_KEY } from "../theme";
 
 const SUMMARY = [
@@ -40,7 +48,8 @@ function Privacy() {
         <section aria-labelledby="who">
           <h2 id="who">Who runs this website</h2>
           <p>
-            GlyphX is an open-source project by Ashutosh Gupta. This website
+            GlyphX is a project by{" "}
+            <a href={AUTHOR_GITHUB}>Ashutosh Gupta</a>. This website
             documents it and lets you try it. Its source code is public on{" "}
             <a href={REPO_URL}>GitHub</a>.
           </p>
@@ -169,16 +178,20 @@ function Privacy() {
         <section aria-labelledby="contact">
           <h2 id="contact">Questions</h2>
           <p>
-            <a href={ISSUES_URL}>Open an issue on GitHub</a>. Issues are public,
-            so please don't include private information.
+            Email <a href={CONTACT_URL}>{AUTHOR_EMAIL}</a>, or{" "}
+            <a href={ISSUES_URL}>open an issue on GitHub</a>. Issues are public,
+            so please don't include private information there.
           </p>
         </section>
 
         <section aria-labelledby="license">
           <h2 id="license">License and warranty</h2>
           <p>
-            GlyphX is released under the <a href={LICENSE_URL}>MIT License</a>.
-            The software is provided “as is”, without warranty of any kind.
+            GlyphX is released under the{" "}
+            <a href={LICENSE_URL}>PolyForm Noncommercial License 1.0.0</a>: it's
+            free for personal and other noncommercial use, and commercial use
+            needs the author's permission. The software is provided “as is”,
+            without warranty of any kind.
             Website content © 2026 Ashutosh Gupta.
           </p>
         </section>

@@ -4,7 +4,7 @@ import { render } from "../render";
 import { Layout } from "../components/Layout";
 import { Code, InstallTabs } from "../components/CodeBlock";
 import { DOC_SECTIONS, type DocSectionId } from "../docsSections";
-import { PAGES } from "../links";
+import { COMMERCIAL_URL, LICENSE_URL, PAGES } from "../links";
 import { useMod } from "../platform";
 import { CSS_IMPORT, QUICK_START } from "../snippets";
 
@@ -747,6 +747,19 @@ test("runs a command from the palette", async () => {
                     With <code>"moduleResolution": "node16"</code> or{" "}
                     <code>"nodenext"</code>, versions before 0.3.0 had broken
                     type declarations. Update to the latest version.
+                  </p>
+                </div>
+              </details>
+              <details>
+                <summary>Can I use GlyphX at my company?</summary>
+                <div>
+                  <p>
+                    GlyphX is under the{" "}
+                    <a href={LICENSE_URL}>PolyForm Noncommercial License</a>:
+                    it's free for personal and other noncommercial use.
+                    Commercial use, including inside a company, needs
+                    permission. <a href={COMMERCIAL_URL}>Email the developer</a>{" "}
+                    to ask.
                   </p>
                 </div>
               </details>

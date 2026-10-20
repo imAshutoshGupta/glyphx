@@ -20,6 +20,12 @@ export const GITHUB_PRIVACY_URL =
 
 export const VERSION = __GLYPHX_VERSION__;
 
+export const AUTHOR = "Ashutosh Gupta";
+export const AUTHOR_GITHUB = "https://github.com/imAshutoshGupta";
+export const AUTHOR_EMAIL = "aguptaworkspace@gmail.com";
+export const CONTACT_URL = `mailto:${AUTHOR_EMAIL}`;
+export const COMMERCIAL_URL = `mailto:${AUTHOR_EMAIL}?subject=${encodeURIComponent("GlyphX commercial license")}`;
+
 export const INSTALL_COMMANDS = {
   npm: "npm install glyphx",
   pnpm: "pnpm add glyphx",

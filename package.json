@@ -1,9 +1,13 @@
 {
   "name": "glyphx",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "A fast, keyboard-first, Spotlight-style command palette for React",
-  "license": "MIT",
-  "author": "Ashutosh Gupta",
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "author": {
+    "name": "Ashutosh Gupta",
+    "email": "aguptaworkspace@gmail.com",
+    "url": "https://github.com/imAshutoshGupta"
+  },
   "homepage": "https://github.com/imAshutoshGupta/glyphx#readme",
   "repository": {
     "type": "git",

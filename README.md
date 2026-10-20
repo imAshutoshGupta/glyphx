@@ -12,7 +12,7 @@
   <a href="https://www.npmjs.com/package/glyphx"><img src="https://img.shields.io/npm/v/glyphx" alt="npm version" /></a>
   <a href="https://github.com/imAshutoshGupta/glyphx/actions/workflows/ci.yml"><img src="https://github.com/imAshutoshGupta/glyphx/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
   <a href="https://www.npmjs.com/package/glyphx"><img src="https://img.shields.io/npm/types/glyphx" alt="TypeScript types included" /></a>
-  <a href="https://github.com/imAshutoshGupta/glyphx/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/glyphx" alt="MIT license" /></a>
+  <a href="https://github.com/imAshutoshGupta/glyphx/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/glyphx" alt="License" /></a>
   <a href="https://imashutoshgupta.github.io/glyphx/docs/"><img src="https://img.shields.io/badge/docs-website-blue" alt="Documentation" /></a>
 </p>
 
@@ -77,4 +77,10 @@ CI runs lint, type-check, tests and builds on every push. See the [changelog](ht
 
 ## License
 
-[MIT](https://github.com/imAshutoshGupta/glyphx/blob/main/LICENSE)
+[PolyForm Noncommercial 1.0.0](https://github.com/imAshutoshGupta/glyphx/blob/main/LICENSE): free for personal and other noncommercial use. Using GlyphX in a commercial product or at a company needs permission, so please [get in touch](mailto:aguptaworkspace@gmail.com?subject=GlyphX%20commercial%20license).
+
+Versions up to and including 0.3.1 were released under the MIT License.
+
+## Author
+
+Designed and built by **Ashutosh Gupta**: [GitHub](https://github.com/imAshutoshGupta) · [aguptaworkspace@gmail.com](mailto:aguptaworkspace@gmail.com)

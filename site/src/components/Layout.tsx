@@ -11,7 +11,12 @@ import logoUrl from "../../../assets/logo.svg";
 import { buildSiteCommands } from "../commands";
 import { SiteContext, type SiteContextValue } from "../context";
 import {
+  AUTHOR,
+  AUTHOR_EMAIL,
+  AUTHOR_GITHUB,
   CHANGELOG_URL,
+  COMMERCIAL_URL,
+  CONTACT_URL,
   ISSUES_URL,
   LICENSE_URL,
   NPM_URL,
@@ -209,8 +214,8 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
                 GlyphX
               </a>
               <p>
-                A fast, keyboard-first command palette for React. Free and open
-                source under the MIT License.
+                A fast, keyboard-first command palette for React. Free for
+                personal and noncommercial use.
               </p>
             </div>
 
@@ -263,14 +268,31 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
                   <a href={PAGES.privacy}>Privacy and data</a>
                 </li>
                 <li>
-                  <a href={LICENSE_URL}>MIT License</a>
+                  <a href={LICENSE_URL}>License</a>
+                </li>
+              </ul>
+            </div>
+
+            <div className="footer-column">
+              <h2>Developer</h2>
+              <ul>
+                <li>
+                  <a href={AUTHOR_GITHUB}>{AUTHOR}</a>
+                </li>
+                <li>
+                  <a href={CONTACT_URL}>{AUTHOR_EMAIL}</a>
+                </li>
+                <li>
+                  <a href={COMMERCIAL_URL}>Ask about commercial use</a>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="footer-bottom">
-            <span>© 2026 Ashutosh Gupta. Released under the MIT License.</span>
+            <span>
+              © 2026 {AUTHOR}. Designed and built by <a href={AUTHOR_GITHUB}>{AUTHOR}</a>.
+            </span>
             <span className="keyboard-only">
               Press <kbd className="kbd">{mod}</kbd> <kbd className="kbd">K</kbd>{" "}
               on any page to open the palette.

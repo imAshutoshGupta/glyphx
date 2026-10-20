@@ -2,6 +2,8 @@ import type { Command, GlyphXTheme } from "glyphx";
 import { ACCENTS, applyAccent } from "./accent";
 import { DOC_SECTIONS, type DocSectionId } from "./docsSections";
 import {
+  COMMERCIAL_URL,
+  CONTACT_URL,
   CHANGELOG_URL,
   INSTALL_COMMANDS,
   LICENSE_URL,
@@ -305,12 +307,32 @@ export function buildSiteCommands(
     },
     {
       id: "open-license",
-      title: "View the MIT License",
-      keywords: ["license", "legal", "terms", "copyright"],
+      title: "View the license",
+      subtitle: "Free for personal and noncommercial use",
+      keywords: ["license", "legal", "terms", "copyright", "commercial", "polyform"],
       group: "Links",
       run: () => openInNewTab(LICENSE_URL),
     },
   ];
+
+  links.push(
+    {
+      id: "contact-developer",
+      title: "Contact the developer",
+      subtitle: "Email Ashutosh Gupta",
+      keywords: ["email", "author", "ashutosh", "gupta", "contact", "hire"],
+      group: "Links",
+      run: () => window.location.assign(CONTACT_URL),
+    },
+    {
+      id: "commercial-license",
+      title: "Ask about a commercial license",
+      subtitle: "Use GlyphX at a company or in a paid product",
+      keywords: ["license", "business", "company", "commercial", "pricing", "permission"],
+      group: "Links",
+      run: () => window.location.assign(COMMERCIAL_URL),
+    }
+  );
 
   const all = [...pageCommands, ...pages, ...docs, ...appearance, ...copying, ...tryIt, ...links];
   return all;
