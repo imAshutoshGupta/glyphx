@@ -28,31 +28,37 @@ function CommandItemImpl({ command, titleIndexes, subtitleIndexes, index }: Prop
       <button
         ref={ref}
         aria-label={command.title}
-        onClick={async () => {
-          await executeCommand(command);
+        // Same as Enter in usePaletteNavigation: close right away and let the
+        // command run in the background, so a slow async command doesn't keep
+        // the palette open.
+        onClick={() => {
+          executeCommand(command);
           close();
         }}
         className={`
           flex w-full items-center justify-between
           rounded-md px-3 py-2 text-left text-sm
+          text-[rgb(var(--glyphx-fg))]
           ${
             isSelected
-              ? "bg-zinc-800 text-white"
-              : "text-zinc-100 hover:bg-zinc-800"
+              ? "bg-[rgb(var(--glyphx-selected))]"
+              : "hover:bg-[rgb(var(--glyphx-selected))]"
           }
         `}
       >
         <span className="flex flex-col">
           <span>{highlightText(command.title, titleIndexes)}</span>
           {command.subtitle && (
-            <span className="text-xs text-[rgb(var(--muted))]">
+            <span className="text-xs text-[rgb(var(--glyphx-muted))]">
               {highlightText(command.subtitle, subtitleIndexes)}
             </span>
           )}
         </span>
 
         {command.shortcut && (
-          <span className="text-xs text-zinc-500">{command.shortcut}</span>
+          <span className="text-xs text-[rgb(var(--glyphx-muted))]">
+            {command.shortcut}
+          </span>
         )}
       </button>
     </li>

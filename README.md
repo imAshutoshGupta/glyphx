@@ -1,6 +1,19 @@
-# GlyphX
+<p align="center">
+  <img src="assets/logo.svg" width="72" height="72" alt="GlyphX logo" />
+</p>
 
-A fast, keyboard-first, Spotlight-style command palette for React.
+<h1 align="center">GlyphX</h1>
+
+<p align="center">
+  A fast, keyboard-first, Spotlight-style command palette for React.
+</p>
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/glyphx"><img src="https://img.shields.io/npm/v/glyphx?color=18181b" alt="npm version" /></a>
+  <a href="https://github.com/imAshutoshGupta/glyphx/actions/workflows/ci.yml"><img src="https://github.com/imAshutoshGupta/glyphx/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
+  <a href="https://bundlephobia.com/package/glyphx"><img src="https://img.shields.io/bundlephobia/minzip/glyphx?color=18181b" alt="Bundle size" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/npm/l/glyphx?color=18181b" alt="MIT license" /></a>
+</p>
 
 GlyphX provides a clean, accessible, and native-feeling command menu inspired by macOS Spotlight and modern desktop tools.
 

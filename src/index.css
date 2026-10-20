@@ -1,23 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --bg: 255 255 255;
-  --fg: 24 24 27;
-  --muted: 113 113 122;
-  --border: 228 228 231;
-  --glass: 255 255 255 / 0.92;
+  --glyphx-bg: 255 255 255;
+  --glyphx-fg: 24 24 27;
+  --glyphx-muted: 113 113 122;
+  --glyphx-border: 228 228 231;
+  --glyphx-glass: 255 255 255 / 0.92;
+  --glyphx-selected: 244 244 245;
+  --glyphx-accent: 37 99 235;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: 9 9 11;
-    --fg: 244 244 245;
-    --muted: 161 161 170;
-    --border: 39 39 42;
-    --glass: 24 24 27 / 0.92;
+    --glyphx-bg: 9 9 11;
+    --glyphx-fg: 244 244 245;
+    --glyphx-muted: 161 161 170;
+    --glyphx-border: 39 39 42;
+    --glyphx-glass: 24 24 27 / 0.92;
+    --glyphx-selected: 39 39 42;
+    --glyphx-accent: 96 165 250;
   }
 }
-@keyframes spotlight-in {
+@keyframes glyphx-in {
   from {
     opacity: 0;
     transform: scale(0.985);
@@ -28,7 +32,7 @@
   }
 }
 
-@keyframes spotlight-out {
+@keyframes glyphx-out {
   from {
     opacity: 1;
     transform: scale(1);

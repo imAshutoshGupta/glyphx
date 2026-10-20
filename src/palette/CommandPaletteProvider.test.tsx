@@ -209,4 +209,31 @@ describe("keyboard navigation", () => {
     await user.click(getItem(/Go Home/));
     expect(isOpen()).toBe(false);
   });
+
+  // An async command that never settles: the palette must not wait for it.
+  const pendingCommand = (): Command => ({
+    id: "slow",
+    title: "Slow Task",
+    run: vi.fn(() => new Promise<void>(() => {})),
+  });
+
+  it("closes immediately on click without waiting for an async command", async () => {
+    const command = pendingCommand();
+    const user = userEvent.setup();
+    render(<GlyphX commands={[command]} />);
+    openPalette();
+    await user.click(getItem(/Slow Task/));
+    expect(command.run).toHaveBeenCalledOnce();
+    expect(isOpen()).toBe(false);
+  });
+
+  it("closes immediately on Enter without waiting for an async command", async () => {
+    const command = pendingCommand();
+    const user = userEvent.setup();
+    render(<GlyphX commands={[command]} />);
+    openPalette();
+    await user.keyboard("{Enter}");
+    expect(command.run).toHaveBeenCalledOnce();
+    expect(isOpen()).toBe(false);
+  });
 });

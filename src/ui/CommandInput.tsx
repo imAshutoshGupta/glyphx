@@ -29,8 +29,8 @@ export function CommandInput() {
         bg-transparent
         px-3 py-2
         text-sm
-        placeholder:text-[rgb(var(--muted))]
-        caret-color-[rgb(var(--fg))]
+        placeholder:text-[rgb(var(--glyphx-muted))]
+        caret-color-[rgb(var(--glyphx-fg))]
         focus:outline-none
       "
     />

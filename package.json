@@ -3,6 +3,15 @@
   "version": "0.2.2",
   "description": "A fast, keyboard-first, Spotlight-style command palette for React",
   "license": "MIT",
+  "author": "Ashutosh Gupta",
+  "homepage": "https://github.com/imAshutoshGupta/glyphx#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imAshutoshGupta/glyphx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/imAshutoshGupta/glyphx/issues"
+  },
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

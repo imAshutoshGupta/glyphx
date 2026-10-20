@@ -5,6 +5,7 @@
 //   Server Components can import GlyphX directly (the directive only counts
 //   when it is the very first statement in the file)
 // - the ESM and CommonJS entry points both load and export GlyphX
+// - the UMD build registers the `GlyphX` global for <script> tag use
 // - type declarations and the stylesheet are present
 import { readFileSync, existsSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -44,6 +45,10 @@ if (existsSync(dist("index.js"))) {
 if (existsSync(dist("index.umd.cjs"))) {
   const cjs = createRequire(import.meta.url)(dist("index.umd.cjs"));
   check(typeof cjs.GlyphX === "function", "CommonJS build does not export GlyphX");
+  check(
+    /\.GlyphX\s*=/.test(readFileSync(dist("index.umd.cjs"), "utf8")),
+    "dist/index.umd.cjs does not register the GlyphX UMD global"
+  );
 }
 
 if (failures.length) {

@@ -7,7 +7,7 @@ export function CommandList() {
 
   if (results.length === 0) {
     return (
-      <div className="px-3 py-8 text-center text-sm text-[rgb(var(--muted))]">
+      <div className="px-3 py-8 text-center text-sm text-[rgb(var(--glyphx-muted))]">
         <p>No matching commands</p>
         <p className="mt-1 text-xs">Try a different keyword</p>
       </div>
@@ -22,7 +22,7 @@ export function CommandList() {
     <div className="max-h-64 overflow-y-auto overscroll-contain [contain:layout_paint] transition-opacity duration-150 opacity-100">
       {grouped.map(({ group, items }) => (
         <div key={group}>
-          <div className="px-3 py-2 text-xs font-semibold text-zinc-500">
+          <div className="px-3 py-2 text-xs font-semibold text-[rgb(var(--glyphx-muted))]">
             {group}
           </div>
           <ul>

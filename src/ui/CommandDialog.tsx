@@ -23,25 +23,25 @@ export function CommandDialog({ open, onOpenChange, children }: Props) {
             fixed left-1/2 top-[20%]
             -translate-x-1/2
             will-change-transform will-change-opacity
-            data-[state=open]:animate-[spotlight-in_180ms_cubic-bezier(0.16,1,0.3,1)]
-            data-[state=closed]:animate-[spotlight-out_120ms_ease-out]
+            data-[state=open]:animate-[glyphx-in_180ms_cubic-bezier(0.16,1,0.3,1)]
+            data-[state=closed]:animate-[glyphx-out_120ms_ease-out]
           "
           data-state={open ? "open" : "closed"}
         >
           <Dialog.Content
-            aria-describedby="command-palette-description"
+            aria-describedby="glyphx-description"
             className="
               w-[520px] max-w-[90vw]
               rounded-xl
-              border border-[rgb(var(--border))]
-              bg-[rgb(var(--glass))]
-              text-[rgb(var(--fg))]
+              border border-[rgb(var(--glyphx-border))]
+              bg-[rgb(var(--glyphx-glass))]
+              text-[rgb(var(--glyphx-fg))]
               shadow-xl
             "
           >
             <VisuallyHidden.Root>
               <Dialog.Title>Command Palette</Dialog.Title>
-              <Dialog.Description id="command-palette-description">
+              <Dialog.Description id="glyphx-description">
                 Type to search and run commands
               </Dialog.Description>
             </VisuallyHidden.Root>

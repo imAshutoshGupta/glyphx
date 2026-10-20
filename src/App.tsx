@@ -6,10 +6,11 @@ export default function App() {
     {
       id: "open-github",
       title: "Open GitHub",
-      subtitle: "Go to the glyphx repository",
+      subtitle: "Go to the GlyphX repository",
       keywords: ["repo", "source", "code"],
       group: "Navigation",
-      run: () => window.open("https://github.com", "_blank"),
+      run: () =>
+        window.open("https://github.com/imAshutoshGupta/glyphx", "_blank"),
     },
     {
       id: "copy-url",
@@ -76,26 +77,33 @@ export default function App() {
       <main
         className="
           min-h-screen
-          bg-[rgb(var(--bg))]
-          text-[rgb(var(--fg))]
+          bg-[rgb(var(--glyphx-bg))]
+          text-[rgb(var(--glyphx-fg))]
           flex
           items-center
           justify-center
         "
       >
         <div className="text-center max-w-md">
-          <h1 className="text-lg font-medium">Command Palette Playground</h1>
+          <img
+            src="/assets/logo.svg"
+            alt=""
+            width={48}
+            height={48}
+            className="mx-auto mb-4"
+          />
+          <h1 className="text-lg font-medium">GlyphX Playground</h1>
 
-          <p className="mt-2 text-sm text-[rgb(var(--muted))]">
+          <p className="mt-2 text-sm text-[rgb(var(--glyphx-muted))]">
             Press <kbd className="rounded border px-1.5 py-0.5">⌘</kbd> +{" "}
             <kbd className="rounded border px-1.5 py-0.5">Shift</kbd> +{" "}
             <kbd className="rounded border px-1.5 py-0.5">P</kbd> to open the
             palette
           </p>
 
-          <p className="mt-4 text-xs text-[rgb(var(--muted))]">
-            This is a minimal host environment for testing and showcasing the
-            command palette.
+          <p className="mt-4 text-xs text-[rgb(var(--glyphx-muted))]">
+            This is a minimal host environment for testing and showcasing
+            GlyphX.
           </p>
         </div>
       </main>

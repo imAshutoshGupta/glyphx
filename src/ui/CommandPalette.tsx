@@ -26,7 +26,7 @@ export function CommandPalette({ onOpenChange }: Props) {
         <span
           className="
           absolute right-3 top-3
-          text-xs text-[rgb(var(--muted))]
+          text-xs text-[rgb(var(--glyphx-muted))]
           pointer-events-none
           select-none
         "
