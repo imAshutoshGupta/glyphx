@@ -10,10 +10,12 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/glyphx"><img src="https://img.shields.io/npm/v/glyphx" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/glyphx"><img src="https://img.shields.io/npm/dm/glyphx" alt="npm downloads per month" /></a>
   <a href="https://github.com/imAshutoshGupta/glyphx/actions/workflows/ci.yml"><img src="https://github.com/imAshutoshGupta/glyphx/actions/workflows/ci.yml/badge.svg" alt="CI status" /></a>
   <a href="https://www.npmjs.com/package/glyphx"><img src="https://img.shields.io/npm/types/glyphx" alt="TypeScript types included" /></a>
   <a href="https://github.com/imAshutoshGupta/glyphx/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/glyphx" alt="License" /></a>
   <a href="https://imashutoshgupta.github.io/glyphx/docs/"><img src="https://img.shields.io/badge/docs-website-blue" alt="Documentation" /></a>
+  <a href="https://hits.sh/github.com/imAshutoshGupta/glyphx/"><img src="https://hits.sh/github.com/imAshutoshGupta/glyphx.svg?label=views" alt="Page views" /></a>
 </p>
 
 <p align="center">

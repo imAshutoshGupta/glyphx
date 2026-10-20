@@ -5,6 +5,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Changed
+
+- The README shows monthly npm downloads and a page-view counter.
+
 ### Fixed
 
 - The documentation's script-tag example loaded GlyphX 0.3 from unpkg, so people who copied it got an old version. It now follows the current release.
