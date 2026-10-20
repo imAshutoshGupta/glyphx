@@ -4,9 +4,13 @@ import { render } from "../render";
 import { Layout } from "../components/Layout";
 import { Code, InstallTabs } from "../components/CodeBlock";
 import { DOC_SECTIONS, type DocSectionId } from "../docsSections";
-import { COMMERCIAL_URL, LICENSE_URL, PAGES } from "../links";
+import { COMMERCIAL_URL, LICENSE_URL, PAGES, VERSION } from "../links";
 import { useMod } from "../platform";
 import { CSS_IMPORT, QUICK_START } from "../snippets";
+
+// The script-tag examples load the current release line, e.g. "0.5" for 0.5.0,
+// so they never point at an old version.
+const CDN_VERSION = VERSION.split(".").slice(0, 2).join(".");
 
 const SECTION_IDS = DOC_SECTIONS.map((section) => section.id);
 const titleOf = (id: DocSectionId) => DOC_SECTIONS.find((s) => s.id === id)!.title;
@@ -528,12 +532,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Code
               language="html"
               title="index.html"
-              code={`<link rel="stylesheet" href="https://unpkg.com/glyphx@0.3/dist/index.css" />
+              code={`<link rel="stylesheet" href="https://unpkg.com/glyphx@${CDN_VERSION}/dist/index.css" />
 <div id="palette"></div>
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/glyphx@0.3/dist/index.umd.js"></script>
+<script src="https://unpkg.com/glyphx@${CDN_VERSION}/dist/index.umd.js"></script>
 <script>
   ReactDOM.createRoot(document.getElementById("palette")).render(
     React.createElement(GlyphX.GlyphX, {
@@ -822,7 +826,7 @@ type GlyphXTheme = "system" | "light" | "dark";`}
               rows={[
                 [<code>glyphx</code>, "The GlyphX component and its types (ESM and CommonJS)"],
                 [<code>glyphx/style.css</code>, "The stylesheet"],
-                [<code>https://unpkg.com/glyphx@0.3/dist/index.umd.js</code>, "The script-tag build (load it from a CDN; it can't be imported)"],
+                [<code>{`https://unpkg.com/glyphx@${CDN_VERSION}/dist/index.umd.js`}</code>, "The script-tag build (load it from a CDN; it can't be imported)"],
               ]}
             />
           </Section>
