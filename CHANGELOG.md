@@ -10,6 +10,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Changed
 
 - `Command.run` is typed `() => unknown` (was `() => void | Promise<void>`). One-liners whose result isn't void, such as `() => window.open(url)`, `() => element.classList.toggle("dark")` or the Pages Router's `() => router.push("/")`, were type errors. GlyphX still ignores the result and doesn't wait for promises. Code that compiled before still compiles.
+- The README is shorter: features, installation, a usage example and key notes, with the full guide on the website. The bundle-size badge, which showed "rate limited", is replaced by TypeScript and documentation badges.
 - New logo: a black tile showing a tiny command palette (a search field, a selected row and the next row), drawn in black and white. It replaces the terminal-prompt logo.
 
 ### Added
@@ -29,7 +30,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Subtitles and shortcut labels on the selected row were slightly below the WCAG AA contrast ratio in light mode. The light `--glyphx-muted` is a little darker.
 - An app's global focus style, such as `:focus-visible { outline: … }`, drew a box around the palette's search field. The field and dialog now keep their outline off; the text cursor shows where focus is.
 - Setting `data-glyphx-theme="light"` on the `<html>` element didn't force light colors while the OS was in dark mode. Color overrides on `:root` still win over GlyphX's defaults in both modes, as long as they load after `glyphx/style.css`.
-- The README said `<GlyphX>` could be rendered directly from a Next.js Server Component. Its commands contain functions, which Server Components can't pass to client components, so the README now shows defining the commands in a small client component. Its color example now sets separate light and dark values.
+- The README said `<GlyphX>` could be rendered directly from a Next.js Server Component. Its commands contain functions, which Server Components can't pass to client components. The documentation now shows defining the commands in a small client component.
 
 ## [0.3.0] - 2026-10-20
 
