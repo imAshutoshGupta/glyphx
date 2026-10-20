@@ -25,7 +25,7 @@ export function usePaletteNavigation() {
           selectPrev();
           break;
 
-        case "Enter":
+        case "Enter": {
           e.preventDefault();
           const result = results[selectedIndex];
           if (result) {
@@ -33,6 +33,7 @@ export function usePaletteNavigation() {
             close();
           }
           break;
+        }
 
         case "Escape":
           e.preventDefault();

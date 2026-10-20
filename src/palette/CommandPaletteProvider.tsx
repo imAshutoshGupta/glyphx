@@ -20,7 +20,8 @@ export function GlyphX({ commands, open, onOpenChange, shortcut }: GlyphXProps) 
 
   useEffect(() => {
     if (open === undefined) return;
-    open ? storeOpen() : storeClose();
+    if (open) storeOpen();
+    else storeClose();
   }, [open, storeOpen, storeClose]);
 
   return (

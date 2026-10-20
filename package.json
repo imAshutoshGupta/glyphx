@@ -23,7 +23,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build && npm test"
+    "lint": "eslint .",
+    "verify:dist": "node scripts/verify-dist.mjs",
+    "prepublishOnly": "npm run build && npm run verify:dist && npm test"
   },
   "peerDependencies": {
     "react": "^18 || ^19",

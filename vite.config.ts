@@ -16,10 +16,17 @@ export default defineConfig({
       fileName: "index"
     },
     rollupOptions: {
-      external: ["react", "react-dom"],
+      // Match subpaths too (react/jsx-runtime, react-dom/client, ...). Listing
+      // only "react" bundles React's JSX runtime into dist, and its CJS
+      // require("react") then throws in pure-ESM environments.
+      external: [/^react(\/.*)?$/, /^react-dom(\/.*)?$/],
       output: {
         // Global names for the UMD build (used when loaded via <script> tag).
-        globals: { react: "React", "react-dom": "ReactDOM" },
+        globals: {
+          react: "React",
+          "react-dom": "ReactDOM",
+          "react/jsx-runtime": "ReactJSXRuntime",
+        },
         // GlyphX is entirely interactive (hooks + Radix Dialog), so the whole
         // bundle is a client module. This banner makes the published output a
         // valid Next.js App Router client boundary, so consumers can import it

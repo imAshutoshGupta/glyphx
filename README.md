@@ -165,6 +165,22 @@ The default keyboard shortcut changed from `⌘/Ctrl + K` to `⌘/Ctrl + Shift +
 ## Known Limitations
 
 - **Single instance per page:** GlyphX uses a module-level state store. Rendering two `<GlyphX>` components on the same page will cause them to share state (commands, open/closed status, query). Use one instance per page.
+- **0.2.2 in pure-ESM environments:** the 0.2.2 ESM build throws `Calling require for "react"` when loaded without a bundler (for example Node ESM / SSR). Apps that bundle GlyphX resolve the call at build time and are not affected. This is fixed in the next release.
+
+## Development
+
+```bash
+npm install
+npm run dev          # playground app (src/App.tsx)
+npm test             # unit and component tests
+npm run lint         # ESLint
+npm run build        # library build into dist/
+npm run verify:dist  # check dist: "use client" banner, ESM + CJS entry points, types, CSS
+```
+
+CI runs lint → type-check → test → build → verify:dist on every push and pull request to `main`. `prepublishOnly` runs build, verify:dist and test before publishing.
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Status
 
