@@ -20,8 +20,8 @@ const COMMAND_SETS: { id: CommandSet; label: string; description: string }[] = [
 
 // `keys` follow the platform's primary key (⌘ or Ctrl) in the labels.
 const SHORTCUT_OPTIONS: { id: string; keys: string; config: ShortcutConfig }[] = [
-  { id: "shift-p", keys: "Shift P", config: { key: "p", shift: true } },
   { id: "k", keys: "K", config: { key: "k" } },
+  { id: "shift-p", keys: "Shift P", config: { key: "p", shift: true } },
   { id: "j", keys: "J", config: { key: "j" } },
   { id: "slash", keys: "/", config: { key: "/" } },
 ];
@@ -107,7 +107,10 @@ function generatedTsx(commands: Command[], shortcuts: ShortcutConfig[], theme: G
   if (commands.length > 2) sample.push(`  // …and ${commands.length - 2} more`);
 
   const props = ["commands={commands}"];
-  const isDefaultShortcut = shortcuts.length === 1 && shortcuts[0].key === "p" && shortcuts[0].shift;
+  const isDefaultShortcut =
+    shortcuts.length === 2 &&
+    shortcuts.some((s) => s.key === "k" && !s.shift) &&
+    shortcuts.some((s) => s.key === "p" && s.shift);
   if (!isDefaultShortcut) {
     const list = shortcuts.map((s) => `{ key: ${quote(s.key)}${s.shift ? ", shift: true" : ""} }`);
     props.push(`shortcut={[${list.join(", ")}]}`);
@@ -277,7 +280,7 @@ function Playground({
                     />
                     <span>
                       {mod} {option.keys}
-                      {option.id === "shift-p" && " (default)"}
+                      {(option.id === "k" || option.id === "shift-p") && " (default)"}
                     </span>
                   </label>
                 ))}
@@ -394,7 +397,7 @@ function PlaygroundPage() {
   const [commandSet, setCommandSet] = useState<CommandSet>("starter");
   const [display, setDisplay] = useState<Display>({ subtitles: true, keywords: true, shortcuts: true });
   const [theme, setTheme] = useState<GlyphXTheme>("system");
-  const [shortcutIds, setShortcutIds] = useState(["shift-p", "k"]);
+  const [shortcutIds, setShortcutIds] = useState(["k", "shift-p"]);
   const [accent, setAccent] = useState<Accent>(DEFAULT_ACCENT);
   const [events, setEvents] = useState<Event[]>([]);
   const focusTarget = useRef<HTMLInputElement>(null);

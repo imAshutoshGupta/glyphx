@@ -4,7 +4,6 @@ import {
   type Command,
   type GlyphXProps,
   type GlyphXTheme,
-  type ShortcutConfig,
 } from "glyphx";
 import { CodeXml, Menu, Monitor, Moon, Search, Sun, X } from "lucide-react";
 import logoUrl from "../../../assets/logo.svg";
@@ -29,10 +28,6 @@ import { applyTheme, readStoredTheme, storeTheme } from "../theme";
 import { typeIntoPalette } from "../typeIntoPalette";
 
 export type Page = "home" | "docs" | "playground" | "privacy" | "not-found";
-
-// ⌘/Ctrl + K as well as the default: Firefox keeps ⌘/Ctrl + Shift + P for
-// itself and never passes it to the page.
-const SITE_SHORTCUTS: ShortcutConfig[] = [{ key: "k" }, { key: "p", shift: true }];
 
 const NEXT_THEME: Record<GlyphXTheme, GlyphXTheme> = {
   system: "light",
@@ -311,7 +306,7 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
 
       <GlyphX
         commands={palette?.commands ?? siteCommands}
-        shortcut={palette?.shortcut ?? SITE_SHORTCUTS}
+        shortcut={palette?.shortcut}
         theme={palette?.theme ?? theme}
         open={open}
         onOpenChange={(next) => {

@@ -5,6 +5,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-20
+
+### Changed
+
+- ⌘/Ctrl + K now opens the palette by default, as well as ⌘/Ctrl + Shift + P. Firefox keeps ⌘/Ctrl + Shift + P for a private window and never passes it to the page, so the default shortcut didn't work in Firefox. Some browsers use ⌘/Ctrl + K to focus their search box, but the page can take it over. If your app already uses ⌘/Ctrl + K, for example to insert a link in a text editor, pass `shortcut={{ key: "p", shift: true }}` to keep only the old default.
+- The website uses the default shortcuts instead of adding ⌘/Ctrl + K itself. The README and documentation drop the Firefox workaround, and the documentation explains which shortcuts browsers keep for themselves.
+
 ## [0.4.0] - 2026-10-20
 
 ### Changed
@@ -153,7 +160,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Initial release: keyboard-first command palette with fuzzy search, grouped commands, arrow-key navigation with auto-scroll, light/dark mode and a Radix Dialog for accessibility.
 
-[Unreleased]: https://github.com/imAshutoshGupta/glyphx/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/imAshutoshGupta/glyphx/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/imAshutoshGupta/glyphx/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/imAshutoshGupta/glyphx/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/imAshutoshGupta/glyphx/compare/v0.2.2...v0.3.0

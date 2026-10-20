@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 import type { ShortcutConfig } from "../palette/types";
 
-// Default to Cmd/Ctrl+Shift+P — Cmd/Ctrl+K overlaps with the browser's
-// address-bar search shortcut. Consumers can override via the `shortcut` prop.
-const DEFAULT_SHORTCUT: ShortcutConfig = { key: "p", shift: true };
+// Default to Cmd/Ctrl+K and Cmd/Ctrl+Shift+P. Firefox keeps Cmd/Ctrl+Shift+P
+// for a private window and never passes it to the page. No browser reserves
+// Cmd/Ctrl+K: some use it to focus their search box, but the page can take it over.
+// Consumers can override via the `shortcut` prop.
+const DEFAULT_SHORTCUT: ShortcutConfig[] = [{ key: "k" }, { key: "p", shift: true }];
 
 const LETTER_OR_DIGIT = /^[a-z0-9]$/i;
 

@@ -67,9 +67,8 @@ const typeQuery = (text: string) => {
   fireEvent.change(getInput(), { target: { value: text } });
 };
 
-// open the palette via its default keyboard shortcut (Ctrl/⌘+Shift+P)
-const openPalette = () =>
-  fireEvent.keyDown(window, { key: "p", ctrlKey: true, shiftKey: true });
+// open the palette via its default keyboard shortcut (jsdom isn't macOS, so Ctrl+K)
+const openPalette = () => fireEvent.keyDown(window, { key: "k", ctrlKey: true });
 
 // Commands run once the palette has finished closing, which Radix completes
 // in a timeout.
@@ -102,6 +101,12 @@ describe("open and close", () => {
   it("opens when the default shortcut is pressed", () => {
     render(<GlyphX commands={makeCommands()} />);
     openPalette();
+    expect(isOpen()).toBe(true);
+  });
+
+  it("also opens with Ctrl+Shift+P by default", () => {
+    render(<GlyphX commands={makeCommands()} />);
+    fireEvent.keyDown(window, { key: "p", ctrlKey: true, shiftKey: true });
     expect(isOpen()).toBe(true);
   });
 
@@ -189,8 +194,9 @@ describe("open and close", () => {
   it("opens via a custom shortcut and ignores the default", () => {
     render(<GlyphX commands={makeCommands()} shortcut={{ key: "j" }} />);
 
-    // the default shortcut no longer opens it
+    // the default shortcuts no longer open it
     openPalette();
+    fireEvent.keyDown(window, { key: "p", ctrlKey: true, shiftKey: true });
     expect(isOpen()).toBe(false);
 
     // the configured one does
@@ -200,9 +206,9 @@ describe("open and close", () => {
 
   it("opens via any of several shortcuts", () => {
     render(
-      <GlyphX commands={makeCommands()} shortcut={[{ key: "p", shift: true }, { key: "k" }]} />
+      <GlyphX commands={makeCommands()} shortcut={[{ key: "j" }, { key: "/" }]} />
     );
-    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    fireEvent.keyDown(window, { key: "/", ctrlKey: true });
     expect(isOpen()).toBe(true);
   });
 });

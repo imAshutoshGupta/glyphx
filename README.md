@@ -24,7 +24,7 @@
 
 ## Features
 
-- Opens with a keyboard shortcut (`⌘/Ctrl + Shift + P` by default, configurable)
+- Opens with a keyboard shortcut (`⌘/Ctrl + K` or `⌘/Ctrl + Shift + P` by default, configurable)
 - Fuzzy search across titles, subtitles and keywords
 - Groups, subtitles and shortcut labels
 - Light and dark themes, customizable with CSS variables
@@ -53,11 +53,11 @@ export function App() {
 }
 ```
 
-Press `⌘ + Shift + P` (macOS) or `Ctrl + Shift + P` (Windows/Linux) to open it.
+Press `⌘ + K` (macOS) or `Ctrl + K` (Windows/Linux) to open it. `⌘/Ctrl + Shift + P` works too, except in Firefox, which keeps it for private windows.
 
 ## Good to know
 
-- **Firefox** keeps `Ctrl/⌘ + Shift + P` for itself. Add a second shortcut: `shortcut={[{ key: "p", shift: true }, { key: "k" }]}`.
+- **Your own shortcut:** `shortcut={{ key: "j" }}` replaces both defaults. Avoid keys the browser keeps, such as `⌘/Ctrl + T`, `W` or `N` ([keyboard shortcuts](https://imashutoshgupta.github.io/glyphx/docs/#shortcuts)).
 - **Next.js:** commands contain functions, so define them in a client component ([example](https://imashutoshgupta.github.io/glyphx/docs/#nextjs)).
 - **Open it from your own button** with the `open` and `onOpenChange` props ([controlled mode](https://imashutoshgupta.github.io/glyphx/docs/#controlled-mode)).
 - **One palette per page:** GlyphX keeps its state in a shared store.

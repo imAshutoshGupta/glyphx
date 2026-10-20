@@ -26,26 +26,41 @@ const press = (init: KeyboardEventInit) => {
 };
 
 describe("useCommandShortcut", () => {
-  it("fires on Cmd+Shift+P by default on macOS", () => {
+  it("fires on Cmd+K and Cmd+Shift+P by default on macOS", () => {
     setPlatform("MacIntel");
     const onTrigger = vi.fn();
     renderHook(() => useCommandShortcut(onTrigger));
 
-    const event = press({ key: "p", metaKey: true, shiftKey: true });
+    const event = press({ key: "k", metaKey: true });
     expect(onTrigger).toHaveBeenCalledOnce();
     expect(event.defaultPrevented).toBe(true);
+
+    press({ key: "p", metaKey: true, shiftKey: true });
+    expect(onTrigger).toHaveBeenCalledTimes(2);
   });
 
-  it("fires on Ctrl+Shift+P by default on non-mac platforms", () => {
+  it("fires on Ctrl+K and Ctrl+Shift+P by default on non-mac platforms", () => {
     setPlatform("Win32");
     const onTrigger = vi.fn();
     renderHook(() => useCommandShortcut(onTrigger));
 
+    press({ key: "k", metaKey: true });
     press({ key: "p", metaKey: true, shiftKey: true });
     expect(onTrigger).not.toHaveBeenCalled();
 
+    press({ key: "k", ctrlKey: true });
     press({ key: "p", ctrlKey: true, shiftKey: true });
-    expect(onTrigger).toHaveBeenCalledOnce();
+    expect(onTrigger).toHaveBeenCalledTimes(2);
+  });
+
+  it("doesn't fire the default Cmd+K with Shift or Alt held", () => {
+    setPlatform("MacIntel");
+    const onTrigger = vi.fn();
+    renderHook(() => useCommandShortcut(onTrigger));
+
+    press({ key: "k", metaKey: true, shiftKey: true });
+    press({ key: "k", metaKey: true, altKey: true });
+    expect(onTrigger).not.toHaveBeenCalled();
   });
 
   it("matches the key case-insensitively", () => {
@@ -63,9 +78,12 @@ describe("useCommandShortcut", () => {
     const onTrigger = vi.fn();
     renderHook(() => useCommandShortcut(onTrigger));
 
-    const event = press({ key: "p", shiftKey: true });
+    // Typing "k" or "P" in a text field must not open the palette.
+    const plainK = press({ key: "k" });
+    const shiftP = press({ key: "p", shiftKey: true });
     expect(onTrigger).not.toHaveBeenCalled();
-    expect(event.defaultPrevented).toBe(false);
+    expect(plainK.defaultPrevented).toBe(false);
+    expect(shiftP.defaultPrevented).toBe(false);
   });
 
   it("matches shift and alt exactly", () => {
@@ -124,12 +142,22 @@ describe("useCommandShortcut", () => {
     setPlatform("MacIntel");
     const onTrigger = vi.fn();
     renderHook(() =>
-      useCommandShortcut(onTrigger, [{ key: "p", shift: true }, { key: "k" }])
+      useCommandShortcut(onTrigger, [{ key: "j" }, { key: "/" }])
     );
 
-    press({ key: "p", metaKey: true, shiftKey: true });
-    press({ key: "k", metaKey: true });
+    press({ key: "j", metaKey: true });
+    press({ key: "/", metaKey: true });
     expect(onTrigger).toHaveBeenCalledTimes(2);
+  });
+
+  it("replaces both defaults with a custom shortcut", () => {
+    setPlatform("MacIntel");
+    const onTrigger = vi.fn();
+    renderHook(() => useCommandShortcut(onTrigger, { key: "j" }));
+
+    press({ key: "k", metaKey: true });
+    press({ key: "p", metaKey: true, shiftKey: true });
+    expect(onTrigger).not.toHaveBeenCalled();
   });
 
   it("matches the physical key when the layout types a non-Latin character", () => {
@@ -137,9 +165,10 @@ describe("useCommandShortcut", () => {
     const onTrigger = vi.fn();
     renderHook(() => useCommandShortcut(onTrigger));
 
-    // Ctrl+Shift+P on a Russian layout
+    // Ctrl+K and Ctrl+Shift+P on a Russian layout
+    press({ key: "л", code: "KeyK", ctrlKey: true });
     press({ key: "З", code: "KeyP", ctrlKey: true, shiftKey: true });
-    expect(onTrigger).toHaveBeenCalledOnce();
+    expect(onTrigger).toHaveBeenCalledTimes(2);
   });
 
   it("matches the physical key when Option changes the character on macOS", () => {
@@ -156,8 +185,9 @@ describe("useCommandShortcut", () => {
     const onTrigger = vi.fn();
     renderHook(() => useCommandShortcut(onTrigger));
 
-    // Dvorak: the key in QWERTY's P position types L.
+    // Dvorak: the keys in QWERTY's P and K positions type L and T.
     press({ key: "L", code: "KeyP", metaKey: true, shiftKey: true });
+    press({ key: "t", code: "KeyK", metaKey: true });
     expect(onTrigger).not.toHaveBeenCalled();
   });
 

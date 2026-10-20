@@ -13,7 +13,7 @@ const features = (mod: string) => [
   {
     key: "↵",
     title: "Keyboard-first",
-    text: `Opens with ${mod} Shift P by default (this site adds ${mod} K), then arrows, Enter and Esc. Pick your own shortcuts.`,
+    text: `Opens with ${mod} K or ${mod} Shift P by default, then arrows, Enter and Esc. Pick your own shortcuts.`,
   },
   {
     key: "≈",

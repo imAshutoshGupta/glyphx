@@ -169,10 +169,8 @@ function Docs() {
             </p>
             <Code code={QUICK_START} title="App.tsx" />
             <p>
-              Press <Kbd>{mod}</Kbd> <Kbd>Shift</Kbd> <Kbd>P</Kbd> to open it
-              (Firefox keeps this shortcut for itself; see{" "}
-              <a href="#shortcuts">Keyboard shortcuts</a>).
-              Type to search, use <Kbd>↑</Kbd> <Kbd>↓</Kbd> to choose, press{" "}
+              Press <Kbd>{mod}</Kbd> <Kbd>K</Kbd> or <Kbd>{mod}</Kbd>{" "}
+              <Kbd>Shift</Kbd> <Kbd>P</Kbd> to open it. Type to search, use <Kbd>↑</Kbd> <Kbd>↓</Kbd> to choose, press{" "}
               <Kbd>Enter</Kbd> to run a command and <Kbd>Esc</Kbd> to close.
             </p>
             <Callout tone="tip">
@@ -287,20 +285,21 @@ function Docs() {
 
           <Section id="shortcuts">
             <p>
-              By default the palette opens with <Kbd>⌘</Kbd> <Kbd>Shift</Kbd>{" "}
-              <Kbd>P</Kbd> on macOS and <Kbd>Ctrl</Kbd> <Kbd>Shift</Kbd>{" "}
+              By default the palette opens with <Kbd>⌘</Kbd> <Kbd>K</Kbd> or{" "}
+              <Kbd>⌘</Kbd> <Kbd>Shift</Kbd> <Kbd>P</Kbd> on macOS, and with{" "}
+              <Kbd>Ctrl</Kbd> <Kbd>K</Kbd> or <Kbd>Ctrl</Kbd> <Kbd>Shift</Kbd>{" "}
               <Kbd>P</Kbd> elsewhere. Change it with the <code>shortcut</code>{" "}
-              prop. The primary key (<Kbd>⌘</Kbd> on macOS, <Kbd>Ctrl</Kbd>{" "}
-              elsewhere) is always part of it.
+              prop, which replaces both. The primary key (<Kbd>⌘</Kbd> on
+              macOS, <Kbd>Ctrl</Kbd> elsewhere) is always part of it.
             </p>
             <Code
-              code={`// ⌘/Ctrl + K
+              code={`// Only ⌘/Ctrl + K
 <GlyphX commands={commands} shortcut={{ key: "k" }} />
 
-// Several shortcuts: ⌘/Ctrl + Shift + P or ⌘/Ctrl + K
+// Several shortcuts: ⌘/Ctrl + K or ⌘/Ctrl + /
 <GlyphX
   commands={commands}
-  shortcut={[{ key: "p", shift: true }, { key: "k" }]}
+  shortcut={[{ key: "k" }, { key: "/" }]}
 />
 
 type ShortcutConfig = {
@@ -309,13 +308,22 @@ type ShortcutConfig = {
   alt?: boolean;   // also require Alt / Option
 };`}
             />
+            <p>
+              GlyphX handles its shortcuts before the rest of the page. If
+              your app has a text editor that uses <Kbd>Ctrl/⌘</Kbd>{" "}
+              <Kbd>K</Kbd> to insert a link, pass a different shortcut, such
+              as <code>{`{ key: "p", shift: true }`}</code>.
+            </p>
             <Callout tone="warning">
               <p>
-                <strong>Firefox</strong> keeps <Kbd>Ctrl/⌘</Kbd>{" "}
-                <Kbd>Shift</Kbd> <Kbd>P</Kbd> for opening a private window and
-                never passes it to the page. If your visitors use Firefox, add
-                a second shortcut such as <Kbd>Ctrl/⌘</Kbd> <Kbd>K</Kbd>, like
-                this website does.
+                <strong>Some shortcuts never reach the page.</strong> Browsers
+                keep the ones for opening and closing windows and tabs, such
+                as <Kbd>Ctrl/⌘</Kbd> <Kbd>N</Kbd>, <Kbd>T</Kbd> and{" "}
+                <Kbd>W</Kbd>. Firefox also keeps <Kbd>Ctrl/⌘</Kbd>{" "}
+                <Kbd>Shift</Kbd> <Kbd>P</Kbd> for a private window, so Firefox
+                users open the palette with <Kbd>Ctrl/⌘</Kbd> <Kbd>K</Kbd>. If
+                you pick your own shortcut, try it in each browser and avoid
+                ones people rely on, such as copy, paste, save, find and print.
               </p>
             </Callout>
             <p>
@@ -356,7 +364,6 @@ export function Header() {
         commands={commands}
         open={open}
         onOpenChange={setOpen}
-        shortcut={{ key: "k" }}
       />
     </header>
   );
@@ -491,7 +498,7 @@ export function CommandPalette() {
     [router]
   );
 
-  return <GlyphX commands={commands} shortcut={{ key: "k" }} />;
+  return <GlyphX commands={commands} />;
 }`}
             />
             <p>Then render it once from your root layout, which stays a Server Component:</p>
@@ -606,7 +613,7 @@ test("runs a command from the palette", async () => {
   render(<GlyphX commands={[{ id: "save", title: "Save file", run }]} />);
 
   // jsdom isn't macOS, so the shortcut uses Ctrl
-  fireEvent.keyDown(window, { key: "p", ctrlKey: true, shiftKey: true });
+  fireEvent.keyDown(window, { key: "k", ctrlKey: true });
 
   const search = screen.getByRole("combobox");
   fireEvent.change(search, { target: { value: "save" } });
@@ -660,10 +667,6 @@ test("runs a command from the palette", async () => {
                 has given focus back.
               </li>
               <li>
-                <strong>Add <Kbd>Ctrl/⌘</Kbd> <Kbd>K</Kbd> for Firefox users</strong>{" "}
-                with <code>{`shortcut={[{ key: "p", shift: true }, { key: "k" }]}`}</code>.
-              </li>
-              <li>
                 <strong>Put a search button in your header.</strong> Not
                 everyone knows the shortcut, and phones don't have one. Use
                 controlled mode to open the palette from the button.
@@ -687,9 +690,12 @@ test("runs a command from the palette", async () => {
                 <summary>The shortcut doesn't work in Firefox.</summary>
                 <div>
                   <p>
-                    Firefox reserves <Kbd>Ctrl/⌘</Kbd> <Kbd>Shift</Kbd>{" "}
-                    <Kbd>P</Kbd>. Add <Kbd>Ctrl/⌘</Kbd> <Kbd>K</Kbd> as a
-                    second shortcut (see <a href="#shortcuts">Keyboard shortcuts</a>).
+                    Firefox keeps <Kbd>Ctrl/⌘</Kbd> <Kbd>Shift</Kbd>{" "}
+                    <Kbd>P</Kbd> for a private window and never passes it to
+                    the page. Use <Kbd>Ctrl/⌘</Kbd> <Kbd>K</Kbd>, which GlyphX
+                    also listens for by default. If you set your own{" "}
+                    <code>shortcut</code>, include one Firefox doesn't keep
+                    (see <a href="#shortcuts">Keyboard shortcuts</a>).
                   </p>
                 </div>
               </details>
@@ -786,7 +792,7 @@ test("runs a command from the palette", async () => {
                 [<code>commands</code>, <code>Command[]</code>, "required", "The commands to show and search."],
                 [<code>open</code>, <code>boolean</code>, "—", "Makes the palette controlled: it is open exactly when this is true."],
                 [<code>onOpenChange</code>, <code>{"(open: boolean) => void"}</code>, "—", "Called with the requested state when the shortcut, Esc, an outside click or picking a command would open or close the palette. Not called when you change open yourself."],
-                [<code>shortcut</code>, <code>{"ShortcutConfig | ShortcutConfig[]"}</code>, <code>{`{ key: "p", shift: true }`}</code>, "The key combinations that open the palette."],
+                [<code>shortcut</code>, <code>{"ShortcutConfig | ShortcutConfig[]"}</code>, <code>{`[{ key: "k" }, { key: "p", shift: true }]`}</code>, "The key combinations that open the palette. Passing it replaces the defaults."],
                 [<code>theme</code>, <code>{`"system" | "light" | "dark"`}</code>, <code>"system"</code>, "The color scheme."],
               ]}
             />
