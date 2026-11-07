@@ -38,7 +38,7 @@ const features = (mod: string) => [
   {
     key: "KB",
     title: "Small and scoped",
-    text: "About 10 KB of its own JavaScript (around 17 KB gzipped with its dependencies) and 3 KB of CSS that only styles the palette, never your page.",
+    text: "About 10 KB of JavaScript, plus 3 KB of CSS that only styles the palette, never your page.",
   },
   {
     key: "</>",

@@ -39,7 +39,7 @@ const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 function starterCommands(log: Log, mod: string, grouped = true): Command[] {
   const commands: Command[] = [
     { id: "home", title: "Go to Home", subtitle: "The start page", keywords: ["start", "dashboard"], shortcut: `${mod} H`, group: "Navigation", run: () => log("Navigated home (pretend)") },
-    { id: "settings", title: "Open Settings", subtitle: "Account, notifications and billing", keywords: ["preferences", "options", "config"], shortcut: `${mod} ,`, group: "Navigation", run: () => log("Opened settings (pretend)") },
+    { id: "settings", title: "Open Settings", subtitle: "Account and billing", keywords: ["preferences", "config"], shortcut: `${mod} ,`, group: "Navigation", run: () => log("Opened settings (pretend)") },
     { id: "profile", title: "View Profile", subtitle: "Your public page", keywords: ["account", "me", "user"], group: "Navigation", run: () => log("Opened profile (pretend)") },
     { id: "new-doc", title: "New Document", subtitle: "Start from a blank page", keywords: ["create", "add", "file"], shortcut: `${mod} N`, group: "Actions", run: () => log("Created a document (pretend)") },
     { id: "save", title: "Save", subtitle: "Save your changes", keywords: ["store", "write"], shortcut: `${mod} S`, group: "Actions", run: () => log("Saved (pretend)") },
@@ -113,7 +113,12 @@ function generatedTsx(commands: Command[], shortcuts: ShortcutConfig[], theme: G
     shortcuts.some((s) => s.key === "p" && s.shift);
   if (!isDefaultShortcut) {
     const list = shortcuts.map((s) => `{ key: ${quote(s.key)}${s.shift ? ", shift: true" : ""} }`);
-    props.push(`shortcut={[${list.join(", ")}]}`);
+    // One shortcut per line when there are several, so lines stay short.
+    props.push(
+      list.length > 1
+        ? `shortcut={[\n${list.map((item) => `          ${item},`).join("\n")}\n        ]}`
+        : `shortcut={[${list[0] ?? ""}]}`
+    );
   }
   if (theme !== "system") props.push(`theme=${quote(theme)}`);
   props.push("open={open}", "onOpenChange={setOpen}");
@@ -131,7 +136,9 @@ export function CommandPalette() {
 
   return (
     <>
-      <button onClick={() => setOpen(true)}>Open the palette</button>
+      <button onClick={() => setOpen(true)}>
+        Open the palette
+      </button>
       <GlyphX
 ${props.map((prop) => `        ${prop}`).join("\n")}
       />
@@ -328,7 +335,7 @@ function Playground({
               >
                 Open the palette
               </button>
-              <p>
+              <p className={shortcuts.length > 0 ? "keyboard-only" : undefined}>
                 {shortcuts.length > 0
                   ? `or press ${SHORTCUT_OPTIONS.filter((o) => shortcutIds.includes(o.id))
                       .map((o) => `${mod} ${o.keys}`)

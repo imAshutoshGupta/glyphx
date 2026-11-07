@@ -5,7 +5,8 @@ export const CSS_IMPORT = `import "glyphx/style.css";`;
 export const QUICK_START = `import { GlyphX, type Command } from "glyphx";
 import "glyphx/style.css";
 
-// Defined outside the component, so the array stays the same between renders.
+// Outside the component, so it stays
+// the same between renders.
 const commands: Command[] = [
   {
     id: "home",
@@ -16,12 +17,14 @@ const commands: Command[] = [
   {
     id: "dark-mode",
     title: "Toggle dark mode",
-    subtitle: "Switch between light and dark",
-    keywords: ["theme", "appearance", "night"],
+    subtitle: "Light or dark",
+    keywords: ["theme", "night"],
     group: "Settings",
-    // Your app's own dark mode. Pass theme={…} to make GlyphX follow it.
+    // Your app's own dark mode. Pass
+    // theme={…} so GlyphX follows it.
     run: () => {
-      document.documentElement.classList.toggle("dark");
+      const el = document.documentElement;
+      el.classList.toggle("dark");
     },
   },
 ];

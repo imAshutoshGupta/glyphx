@@ -3,7 +3,7 @@ import { Info, Lightbulb, TriangleAlert } from "lucide-react";
 import { render } from "../render";
 import { Layout } from "../components/Layout";
 import { Code, InstallTabs } from "../components/CodeBlock";
-import { DOC_SECTIONS, type DocSectionId } from "../docsSections";
+import { DOC_GROUPS, DOC_SECTIONS, type DocSectionId } from "../docsSections";
 import { COMMERCIAL_URL, LICENSE_URL, PAGES, VERSION } from "../links";
 import { useMod } from "../platform";
 import { CSS_IMPORT, QUICK_START } from "../snippets";
@@ -12,22 +12,31 @@ import { CSS_IMPORT, QUICK_START } from "../snippets";
 // so they never point at an old version.
 const CDN_VERSION = VERSION.split(".").slice(0, 2).join(".");
 
-const SECTION_IDS = DOC_SECTIONS.map((section) => section.id);
 const titleOf = (id: DocSectionId) => DOC_SECTIONS.find((s) => s.id === id)!.title;
 
-// The section being read: the last one whose heading has scrolled past a
-// line just below the header. Checked at most once per frame.
-function useActiveSection() {
-  const [active, setActive] = useState<string>(SECTION_IDS[0]);
+// Every heading the sidebar links to, in page order: each section, then its
+// subsections. `section` is the section the heading belongs to.
+const HEADINGS = DOC_SECTIONS.flatMap((section) => [
+  { id: section.id as string, section: section.id as string },
+  ...("subsections" in section ? section.subsections : []).map((sub) => ({
+    id: sub.id as string,
+    section: section.id as string,
+  })),
+]);
+
+// The heading being read: the last one that has scrolled past a line just
+// below the header. Checked at most once per frame.
+function useActiveHeading() {
+  const [active, setActive] = useState(HEADINGS[0]);
 
   useEffect(() => {
     let frame = 0;
     const update = () => {
       frame = 0;
-      let current: string = SECTION_IDS[0];
-      for (const id of SECTION_IDS) {
-        const element = document.getElementById(id);
-        if (element && element.getBoundingClientRect().top <= 140) current = id;
+      let current = HEADINGS[0];
+      for (const heading of HEADINGS) {
+        const element = document.getElementById(heading.id);
+        if (element && element.getBoundingClientRect().top <= 140) current = heading;
       }
       setActive(current);
     };
@@ -56,6 +65,18 @@ function Section({ id, children }: { id: DocSectionId; children: ReactNode }) {
       </h2>
       {children}
     </section>
+  );
+}
+
+// A subsection heading. Its id must match one in docsSections.ts.
+function Sub({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <h3 id={id}>
+      {children}
+      <a className="heading-anchor" href={`#${id}`} aria-hidden tabIndex={-1}>
+        #
+      </a>
+    </h3>
   );
 }
 
@@ -98,8 +119,11 @@ function Table({ head, rows }: { head: string[]; rows: ReactNode[][] }) {
 
 const Kbd = ({ children }: { children: ReactNode }) => <kbd className="kbd">{children}</kbd>;
 
+// A type in a table, kept on one line.
+const Type = ({ children }: { children: ReactNode }) => <code className="nowrap">{children}</code>;
+
 function Docs() {
-  const active = useActiveSection();
+  const active = useActiveHeading();
   const mod = useMod();
 
   return (
@@ -114,37 +138,66 @@ function Docs() {
 
       <div className="docs-layout">
         <nav className="docs-sidebar" aria-label="Documentation">
-          <h2>On this page</h2>
-          <ul>
-            {DOC_SECTIONS.map((section) => (
-              <li key={section.id}>
-                <a href={`#${section.id}`} aria-current={active === section.id ? "true" : undefined}>
-                  {section.title}
-                </a>
-              </li>
-            ))}
-          </ul>
+          {DOC_GROUPS.map((group) => (
+            <div key={group.title} className="docs-sidebar-group">
+              <h2>{group.title}</h2>
+              <ul>
+                {group.sections.map((section) => (
+                  <li key={section.id}>
+                    <a
+                      href={`#${section.id}`}
+                      aria-current={active.id === section.id ? "true" : undefined}
+                      // Still marked while one of its subsections is the one being read.
+                      className={active.section === section.id ? "is-open" : undefined}
+                    >
+                      {section.title}
+                    </a>
+                    {/* The section being read shows its subsections. */}
+                    {section.subsections && active.section === section.id && (
+                      <ul className="docs-sidebar-subs">
+                        {section.subsections.map((sub) => (
+                          <li key={sub.id}>
+                            <a
+                              href={`#${sub.id}`}
+                              aria-current={active.id === sub.id ? "true" : undefined}
+                            >
+                              {sub.title}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </nav>
 
         <div className="prose">
           <details className="docs-toc-mobile">
             <summary>On this page</summary>
-            <ul>
-              {DOC_SECTIONS.map((section) => (
-                <li key={section.id}>
-                  <a
-                    href={`#${section.id}`}
-                    onClick={(e) => {
-                      // Close the list once a section is picked.
-                      const details = e.currentTarget.closest("details");
-                      if (details) details.open = false;
-                    }}
-                  >
-                    {section.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {DOC_GROUPS.map((group) => (
+              <div key={group.title}>
+                <h2>{group.title}</h2>
+                <ul>
+                  {group.sections.map((section) => (
+                    <li key={section.id}>
+                      <a
+                        href={`#${section.id}`}
+                        onClick={(e) => {
+                          // Close the list once a section is picked.
+                          const details = e.currentTarget.closest("details");
+                          if (details) details.open = false;
+                        }}
+                      >
+                        {section.title}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </details>
 
           <Section id="installation">
@@ -173,8 +226,8 @@ function Docs() {
             </p>
             <Code code={QUICK_START} title="App.tsx" />
             <p>
-              Press <Kbd>{mod}</Kbd> <Kbd>K</Kbd> or <Kbd>{mod}</Kbd>{" "}
-              <Kbd>Shift</Kbd> <Kbd>P</Kbd> to open it. Type to search, use <Kbd>↑</Kbd> <Kbd>↓</Kbd> to choose, press{" "}
+              Press <Kbd>{mod}</Kbd> <Kbd>K</Kbd> to open it. Type to search,
+              use <Kbd>↑</Kbd> <Kbd>↓</Kbd> to choose, press{" "}
               <Kbd>Enter</Kbd> to run a command and <Kbd>Esc</Kbd> to close.
             </p>
             <Callout tone="tip">
@@ -191,31 +244,32 @@ function Docs() {
             <Table
               head={["Field", "Type", "What it does"]}
               rows={[
-                [<code>id</code>, <code>string</code>, "Unique and stable. Keeps the selection on the same command when the list changes."],
-                [<code>title</code>, <code>string</code>, "The text people see and search first."],
-                [<code>subtitle</code>, <code>string</code>, "Optional second line of detail. Also searched."],
-                [<code>keywords</code>, <code>string[]</code>, "Optional extra search words, never shown. Great for synonyms."],
-                [<code>shortcut</code>, <code>string</code>, "Optional label on the right, such as “⌘ S”. Display only: GlyphX doesn't bind it."],
-                [<code>group</code>, <code>string</code>, "Optional heading to list the command under. Commands without one go under “Other”."],
-                [<code>run</code>, <code>{"() => unknown"}</code>, "What the command does. It may return anything, including a promise; GlyphX ignores the result."],
+                [<code>id</code>, <Type>string</Type>, "Unique and stable. Keeps the selection on the same command when the list changes."],
+                [<code>title</code>, <Type>string</Type>, "The text people see and search first."],
+                [<code>subtitle</code>, <Type>string</Type>, "Optional second line of detail. Also searched."],
+                [<code>keywords</code>, <Type>string[]</Type>, "Optional extra search words, never shown. Great for synonyms."],
+                [<code>shortcut</code>, <Type>string</Type>, "Optional label on the right, such as “⌘ S”. Display only: GlyphX doesn't bind it."],
+                [<code>group</code>, <Type>string</Type>, "Optional heading to list the command under. Commands without one go under “Other”."],
+                [<code>run</code>, <Type>{"() => unknown"}</Type>, "What the command does. It may return anything, including a promise; GlyphX ignores the result."],
               ]}
             />
           </Section>
 
           <Section id="groups-and-search">
+            <p>Here's a command that uses every field:</p>
             <Code
               title="commands.ts"
               code={`{
   id: "settings",
   title: "Open settings",
-  subtitle: "Account, notifications and billing",
-  keywords: ["preferences", "options", "config"],
+  subtitle: "Account and billing",
+  keywords: ["preferences", "config"],
   shortcut: "⌘ ,",
   group: "Navigation",
   run: () => router.push("/settings"),
 }`}
             />
-            <h3>How search works</h3>
+            <Sub id="how-search-works">How search works</Sub>
             <ul>
               <li>
                 Matching is fuzzy and ignores case and accents: “stngs” finds
@@ -236,7 +290,7 @@ function Docs() {
                 highlighted, because keywords aren't shown.
               </li>
             </ul>
-            <h3>How groups are ordered</h3>
+            <Sub id="how-groups-are-ordered">How groups are ordered</Sub>
             <p>
               With an empty search, groups appear in the order of their first
               command in your array, and commands keep your order. While
@@ -271,7 +325,8 @@ function Docs() {
   id: "export-pdf",
   title: "Export as PDF",
   run: async () => {
-    const id = toast.loading("Exporting…"); // any toast library
+    // Any toast library works
+    const id = toast.loading("Exporting…");
     try {
       await exportPdf();
       toast.success("Exported", { id });
@@ -288,58 +343,73 @@ function Docs() {
           </Section>
 
           <Section id="shortcuts">
+            <p>By default, either of these opens the palette:</p>
+            <Table
+              head={["System", "Shortcuts"]}
+              rows={[
+                ["macOS", <><Kbd>⌘</Kbd> <Kbd>K</Kbd> or <Kbd>⌘</Kbd> <Kbd>Shift</Kbd> <Kbd>P</Kbd></>],
+                ["Windows and Linux", <><Kbd>Ctrl</Kbd> <Kbd>K</Kbd> or <Kbd>Ctrl</Kbd> <Kbd>Shift</Kbd> <Kbd>P</Kbd></>],
+              ]}
+            />
             <p>
-              By default the palette opens with <Kbd>⌘</Kbd> <Kbd>K</Kbd> or{" "}
-              <Kbd>⌘</Kbd> <Kbd>Shift</Kbd> <Kbd>P</Kbd> on macOS, and with{" "}
-              <Kbd>Ctrl</Kbd> <Kbd>K</Kbd> or <Kbd>Ctrl</Kbd> <Kbd>Shift</Kbd>{" "}
-              <Kbd>P</Kbd> elsewhere. Change it with the <code>shortcut</code>{" "}
-              prop, which replaces both. The primary key (<Kbd>⌘</Kbd> on
-              macOS, <Kbd>Ctrl</Kbd> elsewhere) is always part of it.
-              Pressing the shortcut while the palette is open does nothing; it
-              doesn't close it. Close it with <Kbd>Esc</Kbd> or a click
-              outside.
+              Pressing the shortcut while the palette is open does nothing.
+              Close it with <Kbd>Esc</Kbd> or a click outside.
+            </p>
+
+            <Sub id="change-the-shortcut">Change the shortcut</Sub>
+            <p>
+              Pass the <code>shortcut</code> prop. It replaces both defaults.
+              You choose the key, and optionally <code>shift</code> or{" "}
+              <code>alt</code>; <Kbd>⌘</Kbd> on macOS or <Kbd>Ctrl</Kbd>{" "}
+              elsewhere is always added.
             </p>
             <Code
               code={`// Only ⌘/Ctrl + K
-<GlyphX commands={commands} shortcut={{ key: "k" }} />
+<GlyphX
+  commands={commands}
+  shortcut={{ key: "k" }}
+/>
 
-// Several shortcuts: ⌘/Ctrl + K or ⌘/Ctrl + /
+// ⌘/Ctrl + K or ⌘/Ctrl + /
 <GlyphX
   commands={commands}
   shortcut={[{ key: "k" }, { key: "/" }]}
 />
 
-type ShortcutConfig = {
-  key: string;     // "k", "p", "j", "/" …
-  shift?: boolean; // also require Shift
-  alt?: boolean;   // also require Alt / Option
-};`}
+// ⌘/Ctrl + Shift + P
+<GlyphX
+  commands={commands}
+  shortcut={{ key: "p", shift: true }}
+/>`}
             />
             <p>
-              GlyphX handles its shortcuts before the rest of the page. If
-              your app has a text editor that uses <Kbd>Ctrl/⌘</Kbd>{" "}
-              <Kbd>K</Kbd> to insert a link, pass a different shortcut, such
-              as <code>{`{ key: "p", shift: true }`}</code>.
+              GlyphX handles its shortcuts before the rest of the page. If a
+              text editor in your app uses <Kbd>{mod}</Kbd> <Kbd>K</Kbd> to
+              insert a link, use the last example instead.
             </p>
             <Callout tone="warning">
               <p>
                 <strong>Some shortcuts never reach the page.</strong> Browsers
-                keep the ones for opening and closing windows and tabs, such
-                as <Kbd>Ctrl/⌘</Kbd> <Kbd>N</Kbd>, <Kbd>T</Kbd> and{" "}
-                <Kbd>W</Kbd>. Firefox also keeps <Kbd>Ctrl/⌘</Kbd>{" "}
-                <Kbd>Shift</Kbd> <Kbd>P</Kbd> for a private window, so Firefox
-                users open the palette with <Kbd>Ctrl/⌘</Kbd> <Kbd>K</Kbd>. If
-                you pick your own shortcut, try it in each browser and avoid
-                ones people rely on, such as copy, paste, save, find and print.
+                keep these for themselves:
+              </p>
+              <ul>
+                <li>
+                  <Kbd>{mod}</Kbd> <Kbd>N</Kbd>, <Kbd>T</Kbd> and <Kbd>W</Kbd>{" "}
+                  (new window, new tab, close tab) in every browser
+                </li>
+                <li>
+                  <Kbd>{mod}</Kbd> <Kbd>Shift</Kbd> <Kbd>P</Kbd> in Firefox
+                  (private window), so Firefox users use <Kbd>{mod}</Kbd>{" "}
+                  <Kbd>K</Kbd>
+                </li>
+              </ul>
+              <p>
+                Also avoid ones people rely on, such as copy, paste, save, find
+                and print, and try your shortcut in each browser.
               </p>
             </Callout>
-            <p>
-              Letters and digits work on every keyboard layout. On Dvorak or
-              Colemak, people press the key labelled with the letter. On
-              layouts that don't type Latin letters, such as Russian, and with
-              Option on macOS, GlyphX uses the key in that letter's position.
-            </p>
-            <h3>Inside the palette</h3>
+
+            <Sub id="inside-the-palette">Inside the palette</Sub>
             <Table
               head={["Key", "Action"]}
               rows={[
@@ -366,7 +436,9 @@ export function Header() {
 
   return (
     <header>
-      <button onClick={() => setOpen(true)}>Search… ⌘K</button>
+      <button onClick={() => setOpen(true)}>
+        Search… ⌘K
+      </button>
       <GlyphX
         commands={commands}
         open={open}
@@ -386,7 +458,7 @@ export function Header() {
           </Section>
 
           <Section id="theming">
-            <h3>Light, dark or system</h3>
+            <Sub id="light-dark-system">Light, dark or system</Sub>
             <p>
               GlyphX follows the device's light or dark setting. If your app
               has its own theme switch, pass <code>theme</code>:
@@ -399,20 +471,54 @@ import { GlyphX } from "glyphx";
 
 export function CommandPalette() {
   const { resolvedTheme } = useTheme();
+  const dark = resolvedTheme === "dark";
+
   return (
     <GlyphX
       commands={commands}
-      theme={resolvedTheme === "dark" ? "dark" : "light"}
+      theme={dark ? "dark" : "light"}
     />
   );
 }`}
             />
-            <h3>Colors</h3>
+
+            <Sub id="colors">Colors</Sub>
+            <p>Every color GlyphX uses is a CSS variable:</p>
+            <Table
+              head={["Variable", "Used for"]}
+              rows={[
+                [<code>--glyphx-accent</code>, "Matched letters"],
+                [<code>--glyphx-selected</code>, "Selected row background"],
+                [<code>--glyphx-fg</code>, "Text"],
+                [<code>--glyphx-muted</code>, "Subtitles, group headings, shortcuts, placeholder"],
+                [<code>--glyphx-border</code>, "Palette border"],
+                [<code>--glyphx-glass</code>, "Palette background, with see-through amount (e.g. 255 255 255 / 0.92)"],
+              ]}
+            />
             <p>
-              Every color is a CSS variable holding space-separated RGB
-              channels. Override them in CSS that loads after{" "}
-              <code>glyphx/style.css</code>, with separate light and dark
-              values:
+              Each value is three numbers from 0 to 255, for red, green and
+              blue: <code>139 92 246</code> is purple. To change a color, set
+              it in your own CSS, loaded after <code>glyphx/style.css</code>.
+              This changes the accent in both light and dark:
+            </p>
+            <Code
+              language="css"
+              title="globals.css"
+              code={`:root,
+[data-glyphx-theme] {
+  --glyphx-accent: 139 92 246;
+}`}
+            />
+            <p>
+              Try it here: open the palette and run an “Accent color” command.
+              This site recolors GlyphX the same way.
+            </p>
+
+            <Sub id="dark-mode-colors">Different colors in dark mode</Sub>
+            <p>
+              To use one color in light mode and another in dark, set each
+              separately. Dark mode needs two rules: one for when GlyphX follows
+              the device setting, and one for <code>theme="dark"</code>.
             </p>
             <Code
               language="css"
@@ -420,11 +526,11 @@ export function CommandPalette() {
               code={`/* Light */
 :root,
 [data-glyphx-theme="light"] {
-  --glyphx-accent: 147 51 234;    /* matched letters */
-  --glyphx-selected: 243 232 255; /* selected row */
+  --glyphx-accent: 147 51 234;
+  --glyphx-selected: 243 232 255;
 }
 
-/* Dark: following the system… */
+/* Dark, following the device */
 @media (prefers-color-scheme: dark) {
   :root:not([data-glyphx-theme="light"]) {
     --glyphx-accent: 192 132 252;
@@ -432,52 +538,14 @@ export function CommandPalette() {
   }
 }
 
-/* …or with theme="dark" */
+/* Dark, with theme="dark" */
 [data-glyphx-theme="dark"] {
   --glyphx-accent: 192 132 252;
   --glyphx-selected: 59 7 100;
 }`}
             />
-            <Table
-              head={["Variable", "Used for"]}
-              rows={[
-                [<code>--glyphx-glass</code>, "Palette background (includes alpha, e.g. 255 255 255 / 0.92)"],
-                [<code>--glyphx-fg</code>, "Text"],
-                [<code>--glyphx-muted</code>, "Subtitles, group headings, shortcuts, placeholder"],
-                [<code>--glyphx-border</code>, "Palette border"],
-                [<code>--glyphx-selected</code>, "Selected row background"],
-                [<code>--glyphx-accent</code>, "Matched letters"],
-              ]}
-            />
-            <p>
-              Try it here: open the palette and run an “Accent color” command.
-              This site recolors GlyphX the same way, with a CSS variable.
-            </p>
-            <h3>Frosted glass</h3>
-            <p>
-              The palette's background is 92% opaque. For a frosted-glass look,
-              like this website's, blur what's behind it:
-            </p>
-            <Code
-              language="css"
-              code={`.glyphx-content {
-  backdrop-filter: blur(20px) saturate(160%);
-}`}
-            />
-            <h3>Stacking</h3>
-            <p>
-              The palette and its backdrop use <code>z-index: 50</code>, which
-              keeps them above most sticky headers. If something still covers
-              them, raise it:
-            </p>
-            <Code
-              language="css"
-              code={`.glyphx-overlay,
-.glyphx-content {
-  z-index: 1000;
-}`}
-            />
-            <h3>Styling individual parts</h3>
+
+            <Sub id="styling-parts">Styling individual parts</Sub>
             <p>
               For changes the color variables don't cover, target these class
               names in your own CSS, loaded after <code>glyphx/style.css</code>:
@@ -508,6 +576,19 @@ export function CommandPalette() {
   font-size: 18px;
 }`}
             />
+
+            <Sub id="frosted-glass">Frosted glass</Sub>
+            <p>
+              The palette's background is slightly see-through (92% opaque).
+              For a frosted-glass look, like this website's, blur what's behind
+              it:
+            </p>
+            <Code
+              language="css"
+              code={`.glyphx-content {
+  backdrop-filter: blur(20px);
+}`}
+            />
           </Section>
 
           <Section id="nextjs">
@@ -519,7 +600,7 @@ export function CommandPalette() {
               lets them use the router:
             </p>
             <Code
-              title="app/command-palette.tsx"
+              title="app/palette.tsx"
               code={`"use client";
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -530,8 +611,18 @@ export function CommandPalette() {
 
   const commands = useMemo<Command[]>(
     () => [
-      { id: "home", title: "Home", group: "Pages", run: () => router.push("/") },
-      { id: "blog", title: "Blog", group: "Pages", run: () => router.push("/blog") },
+      {
+        id: "home",
+        title: "Home",
+        group: "Pages",
+        run: () => router.push("/"),
+      },
+      {
+        id: "blog",
+        title: "Blog",
+        group: "Pages",
+        run: () => router.push("/blog"),
+      },
     ],
     [router]
   );
@@ -543,9 +634,13 @@ export function CommandPalette() {
             <Code
               title="app/layout.tsx"
               code={`import "glyphx/style.css";
-import { CommandPalette } from "./command-palette";
+import { CommandPalette } from "./palette";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
@@ -566,16 +661,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Code
               language="html"
               title="index.html"
-              code={`<link rel="stylesheet" href="https://unpkg.com/glyphx@${CDN_VERSION}/dist/index.css" />
+              code={`<link
+  rel="stylesheet"
+  href="https://unpkg.com/glyphx@${CDN_VERSION}/dist/index.css"
+/>
 <div id="palette"></div>
 
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/glyphx@${CDN_VERSION}/dist/index.umd.js"></script>
 <script>
-  ReactDOM.createRoot(document.getElementById("palette")).render(
+  const root = document.getElementById("palette");
+  ReactDOM.createRoot(root).render(
     React.createElement(GlyphX.GlyphX, {
-      commands: [{ id: "hello", title: "Say hello", run: () => alert("Hello") }],
+      commands: [
+        {
+          id: "hello",
+          title: "Say hello",
+          run: () => alert("Hello"),
+        },
+      ],
     })
   );
 </script>`}
@@ -586,18 +691,150 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </p>
           </Section>
 
+          <Section id="testing">
+            <p>
+              GlyphX uses standard roles, so Testing Library queries work as
+              you'd expect. Four things to know:
+            </p>
+            <ul>
+              <li>
+                Commands run just after the palette closes, so use{" "}
+                <code>waitFor</code>.
+              </li>
+              <li>
+                jsdom lacks <code>scrollIntoView</code>, so stub it.
+              </li>
+              <li>
+                GlyphX keeps its state in one shared store, so close the
+                palette after each test, or the next test starts with it open.
+              </li>
+              <li>
+                Unless Vitest's <code>globals</code> option is on, Testing
+                Library doesn't remove rendered components between tests, so
+                call <code>cleanup</code> yourself. Otherwise palettes from
+                earlier tests stay on the page, still listening for the
+                shortcut, which can make later tests fail in confusing ways.
+              </li>
+            </ul>
+            <Code
+              title="palette.test.tsx"
+              code={`import {
+  afterEach, expect, test, vi,
+} from "vitest";
+import "@testing-library/jest-dom/vitest";
+import {
+  cleanup, render, screen, fireEvent, waitFor,
+} from "@testing-library/react";
+import { GlyphX } from "glyphx";
+
+// jsdom doesn't have scrollIntoView
+Element.prototype.scrollIntoView = vi.fn();
+
+// GlyphX's state is shared: close the
+// palette after each test, then clean up.
+afterEach(() => {
+  const search =
+    screen.queryByRole("combobox");
+  if (search) {
+    fireEvent.keyDown(search, {
+      key: "Escape",
+    });
+  }
+  cleanup();
+});
+
+test("runs a command", async () => {
+  const run = vi.fn();
+  render(
+    <GlyphX
+      commands={[
+        { id: "save", title: "Save", run },
+      ]}
+    />
+  );
+
+  // jsdom isn't a Mac: the shortcut is Ctrl
+  fireEvent.keyDown(window, {
+    key: "k",
+    ctrlKey: true,
+  });
+
+  const search = screen.getByRole("combobox");
+  fireEvent.change(search, {
+    target: { value: "save" },
+  });
+  const option = screen.getByRole("option", {
+    name: "Save",
+  });
+  expect(option).toBeVisible();
+
+  fireEvent.keyDown(search, { key: "Enter" });
+  await waitFor(() =>
+    expect(run).toHaveBeenCalledOnce()
+  );
+});`}
+            />
+          </Section>
+
+          <Section id="api">
+            <Sub id="api-props">
+              <code>{"<GlyphX />"}</code> props
+            </Sub>
+            <Table
+              head={["Prop", "Type", "Default", "Description"]}
+              rows={[
+                [<code>commands</code>, <code>Command[]</code>, "required", "The commands to show and search."],
+                [<code>open</code>, <code>boolean</code>, "—", "Makes the palette controlled: it is open exactly when this is true."],
+                [<code>onOpenChange</code>, <code>{"(open: boolean) => void"}</code>, "—", "Called with the requested state when the shortcut, Esc, an outside click or picking a command would open or close the palette. Not called when you change open yourself."],
+                [<code>shortcut</code>, <code>{"ShortcutConfig | ShortcutConfig[]"}</code>, <code>{`[{ key: "k" }, { key: "p", shift: true }]`}</code>, "The key combinations that open the palette. Passing it replaces the defaults."],
+                [<code>theme</code>, <code>{`"system" | "light" | "dark"`}</code>, <code>"system"</code>, "The color scheme."],
+              ]}
+            />
+            <Sub id="api-types">Types</Sub>
+            <Code
+              code={`type Command = {
+  id: string;
+  title: string;
+  subtitle?: string;
+  keywords?: string[];
+  shortcut?: string;
+  group?: string;
+  run: () => unknown;
+};
+
+type ShortcutConfig = {
+  key: string;     // "k", "p", "/" …
+  shift?: boolean; // also require Shift
+  alt?: boolean;   // also require Alt
+};
+
+type GlyphXTheme = "system" | "light" | "dark";`}
+            />
+            <Sub id="api-entry-points">Package entry points</Sub>
+            <Table
+              head={["Entry point", "Contents"]}
+              rows={[
+                [<code>glyphx</code>, "The GlyphX component and its types (ESM and CommonJS)"],
+                [<code>glyphx/style.css</code>, "The stylesheet"],
+                [<code>{`https://unpkg.com/glyphx@${CDN_VERSION}/dist/index.umd.js`}</code>, "The script-tag build (load it from a CDN; it can't be imported)"],
+              ]}
+            />
+          </Section>
+
           <Section id="typescript">
             <p>The package includes types for both <code>import</code> and <code>require</code>.</p>
             <Code
               code={`import type {
   Command,        // one command
   GlyphXProps,    // the component's props
-  GlyphXTheme,    // "system" | "light" | "dark"
+  GlyphXTheme,    // "system", "light", "dark"
   ShortcutConfig, // one keyboard shortcut
 } from "glyphx";
 
-// Build commands from your own data, fully typed:
-const toCommand = (page: { path: string; name: string }): Command => ({
+// Build commands from your own data:
+type Page = { path: string; name: string };
+
+const toCommand = (page: Page): Command => ({
   id: page.path,
   title: page.name,
   group: "Pages",
@@ -622,61 +859,8 @@ const toCommand = (page: { path: string; name: string }): Command => ({
             </p>
           </Section>
 
-          <Section id="testing">
-            <p>
-              GlyphX uses standard roles, so Testing Library queries work as
-              you'd expect. Four things to know: commands run just after the
-              palette closes (use <code>waitFor</code>); jsdom lacks{" "}
-              <code>scrollIntoView</code>, so stub it; GlyphX keeps its state
-              in one shared store, so close the palette after each test or the
-              next test starts with it open; and unless Vitest's{" "}
-              <code>globals</code> option is on, Testing Library doesn't remove
-              rendered components between tests, so call{" "}
-              <code>cleanup</code> yourself. Otherwise palettes from earlier
-              tests stay on the page, still listening for the shortcut, which
-              can make later tests fail in confusing ways.
-            </p>
-            <Code
-              title="palette.test.tsx"
-              code={`import { afterEach, expect, test, vi } from "vitest";
-import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { GlyphX } from "glyphx";
-
-Element.prototype.scrollIntoView = vi.fn(); // jsdom doesn't have it
-
-// GlyphX's state is shared, so close the palette after each test,
-// then remove what the test rendered.
-afterEach(() => {
-  const search = screen.queryByRole("combobox");
-  if (search) fireEvent.keyDown(search, { key: "Escape" });
-  cleanup();
-});
-
-test("runs a command from the palette", async () => {
-  const run = vi.fn();
-  render(<GlyphX commands={[{ id: "save", title: "Save file", run }]} />);
-
-  // jsdom isn't macOS, so the shortcut uses Ctrl
-  fireEvent.keyDown(window, { key: "k", ctrlKey: true });
-
-  const search = screen.getByRole("combobox");
-  fireEvent.change(search, { target: { value: "save" } });
-  expect(screen.getByRole("option", { name: "Save file" })).toBeVisible();
-
-  fireEvent.keyDown(search, { key: "Enter" });
-  await waitFor(() => expect(run).toHaveBeenCalledOnce());
-});`}
-            />
-          </Section>
-
           <Section id="tips">
             <ol className="tips">
-              <li>
-                <strong>Keep commands stable.</strong> Define the array outside
-                your component or in <code>useMemo</code>. If it does change
-                while the palette is open, the search and selection are kept.
-              </li>
               <li>
                 <strong>Use keywords for the words people actually type.</strong>{" "}
                 Synonyms, abbreviations and old names: “prefs”, “config” and
@@ -689,12 +873,8 @@ test("runs a command from the palette", async () => {
               <li>
                 <strong>Make commands depend on context.</strong> Add or remove
                 commands for the current page, the user's role or a feature
-                flag. The palette updates live.
-              </li>
-              <li>
-                <strong>Order groups on purpose.</strong> With an empty search,
-                groups follow the order of their first command, so lead with
-                what people need most.
+                flag. The palette updates live, and keeps the search and
+                selection if it's open.
               </li>
               <li>
                 <strong>Show the shortcuts your app already has.</strong> The{" "}
@@ -702,29 +882,15 @@ test("runs a command from the palette", async () => {
                 things, even though GlyphX doesn't bind it.
               </li>
               <li>
-                <strong>Give feedback for slow commands.</strong> The palette
-                closes immediately, so show a toast or spinner while the work
-                runs.
-              </li>
-              <li>
-                <strong>Move focus freely.</strong> A command can call{" "}
-                <code>.focus()</code> on any element; it runs after the palette
-                has given focus back.
-              </li>
-              <li>
                 <strong>Put a search button in your header.</strong> Not
-                everyone knows the shortcut, and phones don't have one. Use
-                controlled mode to open the palette from the button.
+                everyone knows the shortcut, and phones don't have one. Use{" "}
+                <a href="#controlled-mode">controlled mode</a> to open the
+                palette from the button.
               </li>
               <li>
                 <strong>Match your brand.</strong> Override{" "}
                 <code>--glyphx-accent</code> and <code>--glyphx-selected</code>{" "}
-                with your colors.
-              </li>
-              <li>
-                <strong>Use one palette for the whole app.</strong> Render GlyphX
-                once in your root layout and give it every command; it's
-                designed to be the only one on the page.
+                with your <a href="#colors">colors</a>.
               </li>
             </ol>
           </Section>
@@ -745,12 +911,32 @@ test("runs a command from the palette", async () => {
                 </div>
               </details>
               <details>
+                <summary>Does the shortcut work with non-English keyboards?</summary>
+                <div>
+                  <p>
+                    Yes. Letters and digits work on every keyboard layout. On
+                    Dvorak or Colemak, people press the key labelled with the
+                    letter. On layouts that don't type Latin letters, such as
+                    Russian, and with Option on macOS, GlyphX uses the key in
+                    that letter's position.
+                  </p>
+                </div>
+              </details>
+              <details>
                 <summary>The palette appears behind my header.</summary>
                 <div>
                   <p>
-                    Your header has a higher <code>z-index</code> than 50.
-                    Raise GlyphX's (see <a href="#theming">Themes and colors</a>).
+                    The palette and its backdrop use <code>z-index: 50</code>,
+                    which keeps them above most sticky headers. If your header
+                    is higher, raise GlyphX's:
                   </p>
+                  <Code
+                    language="css"
+                    code={`.glyphx-overlay,
+.glyphx-content {
+  z-index: 1000;
+}`}
+                  />
                 </div>
               </details>
               <details>
@@ -767,8 +953,8 @@ test("runs a command from the palette", async () => {
                 <div>
                   <p>
                     No. GlyphX keeps its state in one shared store, so two
-                    instances would share it. Render one and give it all your
-                    commands.
+                    instances would share it. Render one, in your root layout,
+                    and give it all your commands.
                   </p>
                 </div>
               </details>
@@ -837,51 +1023,6 @@ test("runs a command from the palette", async () => {
                 </div>
               </details>
             </div>
-          </Section>
-
-          <Section id="api">
-            <h3>
-              <code>{"<GlyphX />"}</code> props
-            </h3>
-            <Table
-              head={["Prop", "Type", "Default", "Description"]}
-              rows={[
-                [<code>commands</code>, <code>Command[]</code>, "required", "The commands to show and search."],
-                [<code>open</code>, <code>boolean</code>, "—", "Makes the palette controlled: it is open exactly when this is true."],
-                [<code>onOpenChange</code>, <code>{"(open: boolean) => void"}</code>, "—", "Called with the requested state when the shortcut, Esc, an outside click or picking a command would open or close the palette. Not called when you change open yourself."],
-                [<code>shortcut</code>, <code>{"ShortcutConfig | ShortcutConfig[]"}</code>, <code>{`[{ key: "k" }, { key: "p", shift: true }]`}</code>, "The key combinations that open the palette. Passing it replaces the defaults."],
-                [<code>theme</code>, <code>{`"system" | "light" | "dark"`}</code>, <code>"system"</code>, "The color scheme."],
-              ]}
-            />
-            <h3>Types</h3>
-            <Code
-              code={`type Command = {
-  id: string;
-  title: string;
-  subtitle?: string;
-  keywords?: string[];
-  shortcut?: string;
-  group?: string;
-  run: () => unknown;
-};
-
-type ShortcutConfig = {
-  key: string;
-  shift?: boolean;
-  alt?: boolean;
-};
-
-type GlyphXTheme = "system" | "light" | "dark";`}
-            />
-            <h3>Package entry points</h3>
-            <Table
-              head={["Entry point", "Contents"]}
-              rows={[
-                [<code>glyphx</code>, "The GlyphX component and its types (ESM and CommonJS)"],
-                [<code>glyphx/style.css</code>, "The stylesheet"],
-                [<code>{`https://unpkg.com/glyphx@${CDN_VERSION}/dist/index.umd.js`}</code>, "The script-tag build (load it from a CDN; it can't be imported)"],
-              ]}
-            />
           </Section>
         </div>
       </div>

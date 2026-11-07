@@ -572,6 +572,27 @@ p {
   font-size: 13.5px;
   line-height: 1.65;
   tab-size: 2;
+  /* A shade at an edge when there's more code to scroll to that way. The
+     "local" layers scroll with the code and cover the shade at each end, so
+     it disappears once you reach the end, and never shows when it all fits. */
+  background:
+    linear-gradient(to right, rgb(var(--site-surface)) 40%, rgb(var(--site-surface) / 0)) left / 40px 100% no-repeat local,
+    linear-gradient(to left, rgb(var(--site-surface)) 40%, rgb(var(--site-surface) / 0)) right / 40px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, rgb(var(--site-fg) / 0.14), transparent) left / 16px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgb(var(--site-fg) / 0.14), transparent) right / 16px 100% no-repeat scroll,
+    rgb(var(--site-surface));
+}
+
+/* Phones: slightly smaller code, so about 44 characters fit on a line. */
+@media (max-width: 640px) {
+  .code {
+    margin-inline: -12px;
+  }
+
+  .code pre {
+    padding: 12px;
+    font-size: 12px;
+  }
 }
 
 .code-inline {
@@ -1077,9 +1098,26 @@ p {
 }
 
 .docs-sidebar h2 {
-  margin: 0 0 10px;
-  font-size: 13px;
+  margin: 0 0 8px;
+  color: rgb(var(--site-subtle));
+  font-size: 12px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.docs-sidebar-group + .docs-sidebar-group {
+  margin-top: 16px;
+}
+
+/* The section being read lists its subsections, indented. */
+.docs-sidebar .docs-sidebar-subs a {
+  padding: 2px 12px 2px 24px;
+  font-size: 13px;
+}
+
+.docs-sidebar a.is-open {
+  color: rgb(var(--site-fg));
 }
 
 .docs-sidebar ul {
@@ -1090,7 +1128,7 @@ p {
 
 .docs-sidebar a {
   display: block;
-  padding: 5px 12px;
+  padding: 4px 12px;
   border-left: 1px solid rgb(var(--site-border));
   color: rgb(var(--site-muted));
   text-decoration: none;
@@ -1122,6 +1160,15 @@ p {
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+}
+
+.prose .docs-toc-mobile h2 {
+  margin: 8px 16px 2px;
+  color: rgb(var(--site-subtle));
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .docs-toc-mobile ul {
@@ -1206,6 +1253,11 @@ p {
   margin-top: 8px;
 }
 
+/* On the privacy page the summary box comes first, so keep the usual gap. */
+.prose > .summary-box + section h2 {
+  margin-top: 48px;
+}
+
 .prose h3 {
   margin: 36px 0 8px;
   font-size: 18px;
@@ -1283,6 +1335,12 @@ h3:hover .heading-anchor,
 .prose td code {
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
+  overflow-wrap: anywhere;
+}
+
+/* Short values, such as a field's type, read better on one line. */
+.prose td code.nowrap {
+  white-space: nowrap;
 }
 
 @media (max-width: 640px) {
@@ -1319,6 +1377,11 @@ h3:hover .heading-anchor,
   .prose td:last-child {
     color: rgb(var(--site-muted));
   }
+
+  /* Each row is a card here, so long names (a CDN address) can wrap. */
+  .prose td:first-child code {
+    white-space: normal;
+  }
 }
 
 .callout {
@@ -1339,6 +1402,15 @@ h3:hover .heading-anchor,
 
 .callout p {
   margin: 0;
+}
+
+.callout ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.callout li {
+  margin: 4px 0;
 }
 
 .tips {
@@ -1621,14 +1693,6 @@ h3:hover .heading-anchor,
   }
 }
 
-@media (min-width: 961px) {
-  .pg-options {
-    position: sticky;
-    top: 88px;
-    max-height: calc(100vh - 112px);
-    overflow-y: auto;
-  }
-}
 
 /* ─── 404 ──────────────────────────────────────────────────────────────────── */
 

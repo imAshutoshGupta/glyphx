@@ -9,6 +9,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - The README shows monthly npm downloads and a page-view counter.
 
+- The documentation menu groups its sections under Getting started, Guides, Reference and Help, and shows the subsections of the section you're reading. The keyboard shortcuts and theming sections are reorganized, simplest first, with a one-rule example for changing the accent color. Tips no longer repeat advice from other sections, and keyboard layouts and stacking moved to the FAQ.
+- Code examples on the website fit on a phone screen, and a shade at a code block's edge shows when there's more to scroll to. Long values in tables wrap instead of being cut off. The playground's options panel shows every option, the privacy page's summary has space below it, and the playground hides keyboard hints on touch screens.
 - The documentation lists the class names you can target to style individual parts of the palette, says that the built-in text (placeholder, empty message, "Esc to close") is English-only for now, and explains that pressing the shortcut while the palette is open doesn't close it.
 
 ### Fixed

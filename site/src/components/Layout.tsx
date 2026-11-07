@@ -275,7 +275,7 @@ export function Layout({ page, children, pageCommands, palette }: LayoutProps) {
                   <a href={AUTHOR_GITHUB}>{AUTHOR}</a>
                 </li>
                 <li>
-                  <a href={CONTACT_URL}>{AUTHOR_EMAIL}</a>
+                  <a href={CONTACT_URL} title={AUTHOR_EMAIL}>Email</a>
                 </li>
                 <li>
                   <a href={COMMERCIAL_URL}>Ask about commercial use</a>
