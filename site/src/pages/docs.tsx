@@ -295,6 +295,9 @@ function Docs() {
               <Kbd>P</Kbd> elsewhere. Change it with the <code>shortcut</code>{" "}
               prop, which replaces both. The primary key (<Kbd>⌘</Kbd> on
               macOS, <Kbd>Ctrl</Kbd> elsewhere) is always part of it.
+              Pressing the shortcut while the palette is open does nothing; it
+              doesn't close it. Close it with <Kbd>Esc</Kbd> or a click
+              outside.
             </p>
             <Code
               code={`// Only ⌘/Ctrl + K
@@ -474,6 +477,37 @@ export function CommandPalette() {
   z-index: 1000;
 }`}
             />
+            <h3>Styling individual parts</h3>
+            <p>
+              For changes the color variables don't cover, target these class
+              names in your own CSS, loaded after <code>glyphx/style.css</code>:
+            </p>
+            <Table
+              head={["Class", "Element"]}
+              rows={[
+                [<code>.glyphx-overlay</code>, "The dimmed backdrop behind the palette"],
+                [<code>.glyphx-content</code>, "The palette box itself"],
+                [<code>.glyphx-hint</code>, "The “Esc to close” hint"],
+                [<code>.glyphx-input</code>, "The search field"],
+                [<code>.glyphx-list</code>, "The scrolling list of results"],
+                [<code>.glyphx-group-heading</code>, "A group's heading"],
+                [<code>.glyphx-item</code>, "One command row (aria-selected=\"true\" when selected)"],
+                [<code>.glyphx-item-subtitle</code>, "A command's subtitle"],
+                [<code>.glyphx-item-shortcut</code>, "A command's shortcut label"],
+                [<code>.glyphx-highlight</code>, "The matched letters"],
+                [<code>.glyphx-empty</code>, "The “No matching commands” message"],
+              ]}
+            />
+            <Code
+              language="css"
+              title="Example"
+              code={`.glyphx-content {
+  border-radius: 8px;
+}
+.glyphx-input {
+  font-size: 18px;
+}`}
+            />
           </Section>
 
           <Section id="nextjs">
@@ -591,25 +625,32 @@ const toCommand = (page: { path: string; name: string }): Command => ({
           <Section id="testing">
             <p>
               GlyphX uses standard roles, so Testing Library queries work as
-              you'd expect. Three things to know: commands run just after the
+              you'd expect. Four things to know: commands run just after the
               palette closes (use <code>waitFor</code>); jsdom lacks{" "}
-              <code>scrollIntoView</code>, so stub it; and GlyphX keeps its
-              state in one shared store, so close the palette after each test
-              or the next test starts with it open.
+              <code>scrollIntoView</code>, so stub it; GlyphX keeps its state
+              in one shared store, so close the palette after each test or the
+              next test starts with it open; and unless Vitest's{" "}
+              <code>globals</code> option is on, Testing Library doesn't remove
+              rendered components between tests, so call{" "}
+              <code>cleanup</code> yourself. Otherwise palettes from earlier
+              tests stay on the page, still listening for the shortcut, which
+              can make later tests fail in confusing ways.
             </p>
             <Code
               title="palette.test.tsx"
               code={`import { afterEach, expect, test, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { GlyphX } from "glyphx";
 
 Element.prototype.scrollIntoView = vi.fn(); // jsdom doesn't have it
 
-// GlyphX's state is shared, so close the palette after each test.
+// GlyphX's state is shared, so close the palette after each test,
+// then remove what the test rendered.
 afterEach(() => {
   const search = screen.queryByRole("combobox");
   if (search) fireEvent.keyDown(search, { key: "Escape" });
+  cleanup();
 });
 
 test("runs a command from the palette", async () => {
@@ -737,6 +778,18 @@ test("runs a command from the palette", async () => {
                   <p>
                     Pass <code>open</code> and <code>onOpenChange</code> (see{" "}
                     <a href="#controlled-mode">Opening it from your own UI</a>).
+                  </p>
+                </div>
+              </details>
+              <details>
+                <summary>Can I translate or change the palette's built-in text?</summary>
+                <div>
+                  <p>
+                    Not yet. The placeholder (“Type a command…”), the empty
+                    message (“No matching commands”) and the “Esc to close”
+                    hint are always in English. Your command titles, subtitles
+                    and group names can be in any language, and search works
+                    with them.
                   </p>
                 </div>
               </details>

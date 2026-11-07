@@ -9,8 +9,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - The README shows monthly npm downloads and a page-view counter.
 
+- The documentation lists the class names you can target to style individual parts of the palette, says that the built-in text (placeholder, empty message, "Esc to close") is English-only for now, and explains that pressing the shortcut while the palette is open doesn't close it.
+
 ### Fixed
 
+- The documentation's testing example didn't call Testing Library's `cleanup`, so with Vitest's default settings palettes from earlier tests stayed on the page.
 - The documentation's script-tag example loaded GlyphX 0.3 from unpkg, so people who copied it got an old version. It now follows the current release.
 
 ## [0.5.0] - 2026-10-20
